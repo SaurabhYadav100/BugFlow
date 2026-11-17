@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block title %}Analytics{% endblock %}
+
+{% block head %}
+<style>
+  .an-card { background:#fff; border:1px solid #e5e9f2; border-radius:14px; padding:18px; height:100%; }
+  .an-card h6 { font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .stat { border-radius:14px; padding:10px; display:flex; align-items:center; gap:16px; border:1px solid transparent; }
+  .stat svg { flex:none; }
+  .stat .num { font-size:2rem; font-weight:700; line-height:1; }
+  .stat-total { background:#e8f0fe; border-color:#cfe0fc; color:#1d4ed8; }
+  .stat-open { background:#fde8ea; border-color:#f9cdd2; color:#dc2626; }
+  .stat-prog { background:#fff2dd; border-color:#fbe0b4; color:#d97706; }
+  .stat-done { background:#e3f7ea; border-color:#c4ecd2; color:#16a34a; }
+  .stat .lbl { color:#1f2937; }
+  .donut-wrap { position:relative; height:200px; }
+  .donut-center { position:absolute; inset:0; display:flex; flex-direction:column;
+                  align-items:center; justify-content:center; pointer-events:none; padding-right:125px; }
+  .donut-center b { font-size:1.8rem; line-height:1; }
+  .metric { border:1px solid #e5e9f2; border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px; }
+  .metric svg { flex:none; }
+  .metric small { color:#64748b; display:block; }
+  .metric b { font-size:1.25rem; }
+  .sev { border-radius:999px; padding:3px 10px; font-size:.78rem; font-weight:600; }
+  .sev-critical { background:#fde8ea; color:#dc2626; }
+  .sev-high { background:#ffe9d6; color:#ea580c; }
+  .sev-medium { background:#fff3cd; color:#b45309; }
+  .sev-low { background:#e3f7ea; color:#16a34a; }
+  .act-row { display:flex; align-items:center; gap:5px; padding:9px 0; border-bottom:1px solid #f1f5f9; }
+  .act-row:last-child { border-bottom:0; }
+  .act-row .title { flex:1; font-weight:500; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Header + filters -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-primary">{% icon "chart" 38 %}</span>
+      <div>
+        <h3 class="mb-0 fw-bold">Analytics</h3>
+        <div class="text-muted">Project Analytics &amp; Quality Insights</div>
+      </div>
+    </div>
+    <form method="get" class="d-flex gap-2">
+      <select name="project" class="form-select" onchange="this.form.submit()">
+        <option value="">All Projects</option>
+        {% for p in projects %}
+          <option value="{{ p.id }}" {% if p.id|stringformat:"s" == selected_project %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+      <select name="days" class="form-select" onchange="this.form.submit()">
+        <option value="7"  {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+        <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+        <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 Days</option>
+        <option value="365" {% if days == 365 %}selected{% endif %}>Last Year</option>
+      </select>
+    </form>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="stat stat-total">{% icon "bug" 38 %}
+        <div><div class="num">{{ counts.total }}</div><div class="lbl">Total Issues</div></div></div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="stat stat-open">{% icon "x-circle" 38 %}
+        <div><div class="num">{{ counts.open }}</div><div class="lbl">Open Issues</div></div></div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="stat stat-prog">{% icon "clock" 38 %}
+        <div><div class="num">{{ counts.in_progress }}</div><div class="lbl">In Progress</div></div></div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="stat stat-done">{% icon "check-circle" 38 %}
+        <div><div class="num">{{ counts.resolved }}</div><div class="lbl">Resolved Issues</div></div></div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-lg-4">
+      <div class="an-card">
+        <h6><span class="text-primary">{% icon "layers" 20 %}</span>Issue Status Distribution</h6>
+        <div class="donut-wrap">
+          <canvas id="statusChart"></canvas>
+          <div class="donut-center"><b>{{ counts.total }}</b><span>Total</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="an-card">
+        <h6><span class="text-danger">{% icon "bug" 20 %}</span>Severity-wise Issues</h6>
+        <div style="height:230px"><canvas id="severityChart"></canvas></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="an-card">
+        <h6><span class="text-primary">{% icon "chart" 20 %}</span>Monthly Defect Trend</h6>
+        <div style="height:230px"><canvas id="trendChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="an-card">
+        <h6><span class="text-warning">{% icon "check-circle" 20 %}</span>Project Quality Metrics</h6>
+        <div class="row g-2">
+          <div class="col-6"><div class="metric"><span class="text-primary">{% icon "clock" 26 %}</span>
+            <div><small>Avg Resolution Time</small><b>{{ metrics.avg_days }} days</b></div></div></div>
+          <div class="col-6"><div class="metric"><span class="text-success">{% icon "check-circle" 26 %}</span>
+            <div><small>Resolution Rate</small><b>{{ metrics.resolution_rate }}%</b></div></div></div>
+          <div class="col-6"><div class="metric"><span class="text-danger">{% icon "bug" 26 %}</span>
+            <div><small>Defect Density</small><b>{{ metrics.defect_density }}</b></div></div></div>
+          <div class="col-6"><div class="metric"><span class="text-success">{% icon "list" 26 %}</span>
+            <div><small>Backlog Health</small><b>{{ metrics.backlog_health }}%</b></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="an-card">
+        <h6><span class="text-primary">{% icon "folder" 20 %}</span>Top Modules by Defects</h6>
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light"><tr><th>Module</th><th>Total Issues</th><th>% Share</th></tr></thead>
+          <tbody>
+            {% for m in top_modules %}
+              <tr><td>{{ m.name }}</td><td>{{ m.total }}</td><td>{{ m.share }}%</td></tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-muted text-center">No data</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="an-card">
+        <h6 class="justify-content-between">
+          <span class="d-flex align-items-center gap-2"><span class="text-warning">{% icon "clock" 20 %}</span>Recent Activity</span>
+          <a href="{{ issues_url }}" class="small text-decoration-none">View All &rarr;</a>
+        </h6>
+        {% for a in activity %}
+          <div class="act-row">
+            <span class="title">{{ a.title }}</span>
+            <span class="sev sev-{{ a.key }}">{{ a.severity }}</span>
+            <small class="text-muted">{{ a.when|timesince }} ago</small>
+          </div>
+        {% empty %}
+          <div class="text-muted">No recent activity</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ chart_data|json_script:"chart-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const d = JSON.parse(document.getElementById("chart-data").textContent);
+  const BLUE = "#3b82f6", ORANGE = "#f59e0b", GREEN = "#22c55e", RED = "#ef4444";
+
+  new Chart(document.getElementById("statusChart"), {
+    type: "doughnut",
+    data: {
+      labels: ["Open", "In Progress", "Resolved"],
+      datasets: [{ data: d.status, backgroundColor: [BLUE, ORANGE, GREEN], borderWidth: 0 }]
+    },
+    options: { maintainAspectRatio: false, cutout: "62%",
+               plugins: { legend: { position: "right" } } }
+  });
+
+  new Chart(document.getElementById("severityChart"), {
+    type: "bar",
+    data: {
+      labels: ["Critical", "High", "Medium", "Low"],
+      datasets: [{ data: d.severity, backgroundColor: [RED, ORANGE, BLUE, GREEN], borderRadius: 4 }]
+    },
+    options: { maintainAspectRatio: false,
+               plugins: { legend: { display: false } },
+               scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+
+  new Chart(document.getElementById("trendChart"), {
+    type: "line",
+    data: {
+      labels: d.trend.months,
+      datasets: [
+        { label: "Total Issues", data: d.trend.total, borderColor: BLUE,
+          backgroundColor: "rgba(59,130,246,.12)", fill: true, tension: .3 },
+        { label: "Resolved", data: d.trend.resolved, borderColor: GREEN,
+          backgroundColor: GREEN, tension: .3 }
+      ]
+    },
+    options: { maintainAspectRatio: false,
+               plugins: { legend: { position: "top", align: "end" } },
+               scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+</script>
+{% endblock %}

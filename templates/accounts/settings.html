@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-4">Settings</h1>
+<div class="row"><div class="col-lg-8 col-xl-6"><div class="card shadow-sm"><div class="card-body p-4">
+  <h2 class="h5 mb-3">Profile</h2>
+  <form method="post" novalidate>{% csrf_token %}
+    {% for field in form %}{% include "crud/_field.html" %}{% endfor %}
+    <p class="text-body-secondary">Role: {{ user.get_role_display }}</p>
+    <div class="d-flex gap-2"><button class="btn btn-primary" type="submit">Save changes</button><a class="btn btn-outline-secondary" href="{% url 'password_change' %}">Change password</a></div>
+  </form>
+</div></div></div></div>
+{% endblock %}

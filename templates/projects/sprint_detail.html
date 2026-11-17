@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<nav aria-label="breadcrumb"><ol class="breadcrumb mb-3">
+  <li class="breadcrumb-item"><a href="{% url 'sprint_list' %}" class="text-decoration-none">Sprints</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ sprint.name }}</li></ol></nav>
+
+<div class="card shadow-sm mb-3"><div class="card-body p-4">
+  <div class="row g-4 align-items-center">
+    <div class="col-xl-5">
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <h1 class="h2 mb-0">{{ sprint.name }}</h1>
+        <span class="badge rounded-pill {{ sprint.state|sprint_badge }}">{{ sprint.state|title }}</span></div>
+      <div class="text-body-secondary mb-1 d-flex align-items-center gap-2">{% icon "calendar" 16 %}
+        {{ sprint.start_date|date:"M d, Y" }} – {{ sprint.end_date|date:"M d, Y" }} ({{ sprint.duration_label }})</div>
+      <div class="text-body-secondary small mb-1">{{ sprint.project.name }}</div>
+      <p class="mb-0">{{ sprint.goal|default:"No sprint goal set." }}</p>
+    </div>
+    <div class="col-xl-5"><div class="row g-0 text-center bg-body-tertiary rounded-3 py-3">
+      <div class="col-3 border-end"><div class="small text-body-secondary">Total Issues</div><div class="fs-2 fw-bold text-primary">{{ stats.total }}</div></div>
+      <div class="col-3 border-end"><div class="small text-body-secondary">Completed</div><div class="fs-2 fw-bold text-success">{{ stats.completed }}</div></div>
+      <div class="col-3 border-end"><div class="small text-body-secondary">In Progress</div><div class="fs-2 fw-bold text-warning">{{ stats.in_progress }}</div></div>
+      <div class="col-3"><div class="small text-body-secondary">Remaining</div><div class="fs-2 fw-bold text-purple-emphasis">{{ stats.remaining }}</div></div>
+    </div></div>
+    <!--div class="col-xl-2 d-flex flex-xl-column gap-2 justify-content-xl-end">
+      <a class="btn btn-primary" href="{% url 'sprint_edit' sprint.pk %}">{% icon "edit" 15 %} Edit Sprint</a>
+      <a class="btn btn-outline-secondary" href="?tab=details">{% icon "eye" 15 %} View Details</a>
+    </div-->
+  </div>
+</div></div>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'board' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-board" type="button" role="tab">Sprint Board</button></li>
+  <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'backlog' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-backlog" type="button" role="tab">Backlog</button></li>
+  <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'details' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-details" type="button" role="tab">Sprint Details</button></li>
+</ul>
+
+<div class="tab-content">
+  <!-- ============ Sprint Board ============ -->
+  <div class="tab-pane fade {% if active_tab == 'board' %}show active{% endif %}" id="tab-board" role="tabpanel">
+    <div class="row g-3">
+      <div class="col-lg-3"><div class="card shadow-sm h-100"><div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h6 mb-0 d-flex align-items-center gap-2">{% icon "list" 16 %} Backlog</h2><span class="badge text-bg-secondary rounded-pill">{{ backlog|length }}</span></div>
+        <input class="form-control form-control-sm mb-3" type="search" placeholder="Search backlog issues..." data-filter="#backlogList" aria-label="Search backlog issues">
+        <div id="backlogList" class="overflow-auto" style="max-height: 640px">
+          {% for i in backlog %}<div class="border rounded p-2 mb-2 bg-white" data-filter-item data-filter-text="{{ i.key }} {{ i.title }}">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div><div class="fw-bold small">{{ i.key }}</div><div class="small">{{ i.title }}</div></div>
+              <form method="post" action="{% url 'sprint_assign' sprint.pk %}">{% csrf_token %}<input type="hidden" name="ids" value="{{ i.pk }}"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button class="btn btn-primary btn-sm text-nowrap" type="submit">Add to Sprint</button></form></div>
+            <div class="d-flex gap-1 mt-1"><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ i.get_issue_type_display }}</span><span class="badge rounded-pill {{ i.priority|priority_badge }}">{{ i.get_priority_display }}</span></div>
+          </div>{% empty %}<p class="small text-body-secondary mb-0">The backlog for {{ sprint.project.name }} is empty.</p>{% endfor %}
+        </div>
+      </div></div></div>
+
+      {% for col in columns %}
+      <div class="col-md-4 col-lg-3"><div class="card border-0 bg-{{ col.colour }}-subtle h-100"><div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 mb-0 text-{{ col.colour }}-emphasis">{{ col.title }} ({{ col.issues|length }})</h2>
+          {% if col.key == "todo" and user.can_report %}<a class="btn btn-sm btn-light border rounded-circle p-1" title="Create an issue in this sprint" aria-label="Create an issue in this sprint" href="{% url 'issue_create' %}?project={{ sprint.project_id }}&amp;sprint={{ sprint.pk }}">{% icon "plus" 16 %}</a>{% endif %}
+        </div>
+        {% for i in col.issues %}{% include "projects/sprint_card.html" %}
+        {% empty %}<p class="small text-body-secondary text-center py-4 mb-0">No issues here.</p>{% endfor %}
+      </div></div></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ============ Backlog tab: tick issues and assign ============ -->
+  <div class="tab-pane fade {% if active_tab == 'backlog' %}show active{% endif %}" id="tab-backlog" role="tabpanel">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h6 mb-0">Backlog &middot; {{ sprint.project.name }}</h2>
+        <input class="form-control form-control-sm w-auto" type="search" placeholder="Search issues..." data-filter="#backlogTable" aria-label="Search backlog"></div>
+      <form method="post" action="{% url 'sprint_assign' sprint.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <div class="table-responsive"><table class="table table-hover align-middle mb-3" id="backlogTable">
+          <thead class="table-light"><tr><th style="width:36px"><input class="form-check-input" type="checkbox" data-select-all aria-label="Select all"></th><th>ID</th><th>Title</th><th>Type</th><th>Status</th><th>Priority</th></tr></thead>
+          <tbody>{% for i in backlog %}<tr data-filter-item data-filter-text="{{ i.key }} {{ i.title }}">
+            <td><input class="form-check-input" type="checkbox" name="ids" value="{{ i.pk }}" data-select-row aria-label="Select {{ i.key }}"></td>
+            <td><a href="{% url 'issue_detail' i.pk %}">{{ i.key }}</a></td><td>{{ i.title }}</td><td>{{ i.get_issue_type_display }}</td>
+            <td><span class="badge rounded-pill {{ i.status|status_badge }}">{{ i.get_status_display }}</span></td>
+            <td><span class="badge rounded-pill {{ i.priority|priority_badge }}">{{ i.get_priority_display }}</span></td></tr>
+          {% empty %}<tr><td colspan="6" class="text-center text-body-secondary py-4">Nothing in the backlog. Every open issue of this project is already in a sprint.</td></tr>{% endfor %}</tbody>
+        </table></div>
+        {% if backlog %}<button class="btn btn-primary" type="submit">Assign to Sprint</button>{% endif %}
+      </form>
+    </div></div>
+  </div>
+
+  <!-- ============ Sprint Details ============ -->
+  <div class="tab-pane fade {% if active_tab == 'details' %}show active{% endif %}" id="tab-details" role="tabpanel">
+    <div class="card shadow-sm"><div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3 fw-normal text-body-secondary">Project</dt><dd class="col-sm-9">{{ sprint.project.name }}</dd>
+        <dt class="col-sm-3 fw-normal text-body-secondary">Project Manager</dt><dd class="col-sm-9">{{ sprint.project.manager.name|default:"-" }}</dd>
+        <dt class="col-sm-3 fw-normal text-body-secondary">Status</dt><dd class="col-sm-9"><span class="badge rounded-pill {{ sprint.state|sprint_badge }}">{{ sprint.state|title }}</span></dd>
+        <dt class="col-sm-3 fw-normal text-body-secondary">Dates</dt><dd class="col-sm-9">{{ sprint.start_date|date:"M d, Y" }} – {{ sprint.end_date|date:"M d, Y" }}</dd>
+        <dt class="col-sm-3 fw-normal text-body-secondary">Duration</dt><dd class="col-sm-9">{{ sprint.duration_label }} ({{ sprint.duration_days }} days)</dd>
+        <dt class="col-sm-3 fw-normal text-body-secondary">Goal</dt><dd class="col-sm-9">{{ sprint.goal|default:"-" }}</dd>
+        <dt class="col-sm-3 fw-normal text-body-secondary">Issues by type</dt>
+        <dd class="col-sm-9">{% for label, n in by_type %}<span class="badge bg-secondary-subtle text-secondary-emphasis me-1">{{ label }}: {{ n }}</span>{% empty %}-{% endfor %}</dd>
+      </dl>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

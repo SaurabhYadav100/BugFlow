@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0">Projects</h1>
+  {% if user.can_manage %}<a class="btn btn-primary" href="{% url 'project_create' %}">{% icon "plus" 15 %} Add Project</a>{% endif %}</div>
+<div class="card shadow-sm"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  <thead class="table-light"><tr><th>ID</th><th>Name</th><th>Description</th><th>Manager</th><th>Issues</th><th>Created Date</th>{% if user.can_manage %}<th>Action</th>{% endif %}</tr></thead>
+  <tbody>{% for p in projects %}<tr><td>{{ p.pk }}</td><td>{{ p.name }}</td><td>{{ p.description }}</td><td>{{ p.manager.name|default:"-" }}</td>
+    <td><a href="{% url 'issue_list' %}?project={{ p.pk }}">{{ p.issue_count }}</a></td><td>{{ p.created_at|date:"M d, Y" }}</td>
+    {% if user.can_manage %}<td class="text-nowrap"><a class="btn btn-sm btn-outline-primary" href="{% url 'project_edit' p.pk %}">Edit</a> <a class="btn btn-sm btn-outline-danger" href="{% url 'project_delete' p.pk %}">Delete</a></td>{% endif %}</tr>
+  {% empty %}<tr><td colspan="7" class="text-center text-body-secondary py-4">No projects yet.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

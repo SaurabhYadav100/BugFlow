@@ -1,0 +1,57 @@
+/* BugFlow theme on top of Bootstrap 5.3: brand colours, app shell, and the two charts Bootstrap doesn't have. */
+:root, [data-bs-theme="light"] {
+  --bs-primary: #1570ef; --bs-primary-rgb: 21, 112, 239;
+  --bs-primary-bg-subtle: #e8f1ff; --bs-primary-text-emphasis: #0f4db3; --bs-primary-border-subtle: #bcd6fb;
+  --bs-link-color: #1570ef; --bs-link-color-rgb: 21, 112, 239; --bs-link-hover-color: #0f5fd0; --bs-link-hover-color-rgb: 15, 95, 208;
+  --bs-danger: #ef4444; --bs-danger-rgb: 239, 68, 68; --bs-danger-bg-subtle: #fee8e8; --bs-danger-text-emphasis: #c02626; --bs-danger-border-subtle: #ffc9c9;
+  --bs-success: #16a34a; --bs-success-rgb: 22, 163, 74; --bs-success-bg-subtle: #dcf5e6; --bs-success-text-emphasis: #146c3b; --bs-success-border-subtle: #bfe8d0;
+  --bs-warning: #f5a623; --bs-warning-rgb: 245, 166, 35; --bs-warning-bg-subtle: #fff4dc; --bs-warning-text-emphasis: #9a6200; --bs-warning-border-subtle: #fbe7b5;
+  --bs-secondary-bg-subtle: #e8edf3; --bs-secondary-text-emphasis: #475569; --bs-secondary-border-subtle: #dbe3ee;
+  --bs-body-bg: #f3f6fb; --bs-body-bg-rgb: 243, 246, 251; --bs-body-color: #14213d; --bs-border-color: #e3e9f4;
+  --bs-font-sans-serif: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --bf-navy: #10264a; --bf-navy-dark: #0b1b38; --bf-navy-line: #1c3563; --bf-sidebar: 224px; --bf-topbar: 58px;
+}
+.btn-primary {
+  --bs-btn-bg: #1570ef; --bs-btn-border-color: #1570ef; --bs-btn-hover-bg: #0f5fd0; --bs-btn-hover-border-color: #0f5fd0;
+  --bs-btn-active-bg: #0f5fd0; --bs-btn-active-border-color: #0f5fd0; --bs-btn-disabled-bg: #1570ef; --bs-btn-disabled-border-color: #1570ef;
+}
+.btn-danger { --bs-btn-bg: #ef4444; --bs-btn-border-color: #ef4444; --bs-btn-hover-bg: #d92d20; --bs-btn-hover-border-color: #d92d20; }
+.form-check-input:checked { background-color: #1570ef; border-color: #1570ef; }
+.card { --bs-card-border-color: #e3e9f4; }
+.table > :not(caption) > * > * { padding-top: .7rem; padding-bottom: .7rem; }
+.table thead th { font-weight: 600; color: #3b4a68; white-space: nowrap; }
+
+/* purple = the "Testing" status */
+.bg-purple { background-color: #8b5cf6 !important; } .bg-purple-subtle { background-color: #ede6ff !important; }
+.text-purple-emphasis { color: #7c3aed !important; }
+
+/* app shell: fixed top bar + navy sidebar */
+.bf-topbar { background: var(--bf-navy-dark); height: var(--bf-topbar); }
+.bf-topbar .navbar-brand .icon { color: var(--bs-danger); }
+.bf-avatar { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--bf-navy); font-weight: 700; display: inline-grid; place-items: center; }
+.bf-sidebar { position: fixed; top: var(--bf-topbar); bottom: 0; left: 0; width: var(--bf-sidebar); background: var(--bf-navy); padding: 14px 10px; overflow-y: auto; z-index: 1030; transition: transform .2s; display: flex; flex-direction: column; }
+.bf-sidebar .nav-link { color: #cfd9ee; font-weight: 500; padding: .7rem .9rem; }
+.bf-sidebar .nav-link:hover { background: var(--bf-navy-line); color: #fff; }
+.bf-sidebar .nav-link.active { background: var(--bs-primary); color: #fff; }
+.bf-main { margin: var(--bf-topbar) 0 0 var(--bf-sidebar); transition: margin .2s; }
+body.nav-collapsed .bf-sidebar { transform: translateX(-100%); }
+body.nav-collapsed .bf-main { margin-left: 0; }
+@media (max-width: 991.98px) {
+  .bf-sidebar { transform: translateX(-100%); } .bf-main { margin-left: 0; }
+  body.nav-open .bf-sidebar { transform: none; }
+}
+
+/* login / register */
+.bg-navy { background: var(--bf-navy); }
+.auth-logo .icon { color: var(--bs-danger); }
+.auth-words i { width: 4px; height: 4px; background: #4c9bff; border-radius: 50%; display: inline-block; }
+
+/* charts */
+.bf-donut { width: 152px; height: 152px; border-radius: 50%; position: relative; flex: none; }
+.bf-donut::before { content: ""; position: absolute; inset: 24px; background: #fff; border-radius: 50%; }
+.bf-donut-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.bf-vbars { display: flex; align-items: flex-end; justify-content: space-around; gap: 10px; height: 190px; }
+.bf-vbar { display: grid; grid-template-rows: auto 1fr auto; justify-items: center; gap: 6px; height: 100%; flex: 1; max-width: 90px; font-size: .82rem; }
+.bf-vbar-track { width: 100%; max-width: 52px; display: flex; align-items: flex-end; border-bottom: 2px solid var(--bs-border-color); }
+.bf-vbar-track i { display: block; width: 100%; border-radius: 6px 6px 0 0; min-height: 2px; }
+.bf-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }

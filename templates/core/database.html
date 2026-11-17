@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Database Tables</h1>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'database_status' %}">{% icon "database" 15 %} Check connection</a></div>
+
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item"><a class="nav-link {% if tab == 'users' %}active{% endif %}" href="?tab=users">Users</a></li>
+  <li class="nav-item"><a class="nav-link {% if tab == 'projects' %}active{% endif %}" href="?tab=projects">Projects</a></li>
+  <li class="nav-item"><a class="nav-link {% if tab == 'issues' %}active{% endif %}" href="?tab=issues">Issues</a></li>
+  <li class="nav-item"><a class="nav-link {% if tab == 'workflow' %}active{% endif %}" href="?tab=workflow">Workflow States</a></li>
+</ul>
+
+{% if tab == "users" %}
+<section class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h5 text-primary mb-0">Users</h2><a class="btn btn-primary btn-sm" href="{% url 'user_create' %}">{% icon "plus" 14 %} Add User</a></div>
+  <div class="card shadow-sm"><div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Created Date</th><th>Action</th></tr></thead>
+    <tbody>{% for u in users %}<tr><td>{{ u.pk }}</td><td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.get_role_display }}</td><td>{{ u.created_at|date:"M d, Y" }}</td>
+      <td class="text-nowrap"><a class="btn btn-sm btn-outline-primary py-0" href="{% url 'user_edit' u.pk %}">Edit</a> <a class="btn btn-sm btn-outline-danger py-0" href="{% url 'user_delete' u.pk %}">Delete</a></td></tr>{% endfor %}</tbody>
+  </table></div></div>
+</section>
+{% endif %}
+
+{% if tab == "users" or tab == "projects" %}
+<section class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h5 text-primary mb-0">Projects</h2>{% if tab == "projects" %}<a class="btn btn-primary btn-sm" href="{% url 'project_create' %}">{% icon "plus" 14 %} Add Project</a>{% endif %}</div>
+  <div class="card shadow-sm"><div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>ID</th><th>Name</th><th>Description</th><th>Created Date</th><th>Action</th></tr></thead>
+    <tbody>{% for p in projects %}<tr><td>{{ p.pk }}</td><td>{{ p.name }}</td><td>{{ p.description }}</td><td>{{ p.created_at|date:"M d, Y" }}</td>
+      <td class="text-nowrap"><a class="btn btn-sm btn-outline-primary py-0" href="{% url 'project_edit' p.pk %}">Edit</a> <a class="btn btn-sm btn-outline-danger py-0" href="{% url 'project_delete' p.pk %}">Delete</a></td></tr>{% endfor %}</tbody>
+  </table></div></div>
+</section>
+{% endif %}
+
+{% if tab == "users" or tab == "issues" %}
+<section class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h5 text-primary mb-0">Issues</h2>{% if tab == "issues" %}<a class="btn btn-primary btn-sm" href="{% url 'issue_create' %}">{% icon "plus" 14 %} Report Issue</a>{% endif %}</div>
+  <div class="card shadow-sm"><div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>ID</th><th>Title</th><th>Type</th><th>Status</th><th>Priority</th><th>Assigned To</th><th>Created Date</th></tr></thead>
+    <tbody>{% for i in issues %}<tr><td><a href="{% url 'issue_detail' i.pk %}">{{ i.key }}</a></td><td>{{ i.title }}</td><td>{{ i.get_issue_type_display }}</td>
+      <td><span class="badge rounded-pill {{ i.status|status_badge }}">{{ i.get_status_display }}</span></td><td><span class="badge rounded-pill {{ i.priority|priority_badge }}">{{ i.get_priority_display }}</span></td>
+      <td>{{ i.assignee.name|default:"Unassigned" }}</td><td>{{ i.created_at|date:"M d, Y" }}</td></tr>{% endfor %}</tbody>
+  </table></div></div>
+</section>
+{% endif %}
+
+{% if tab == "workflow" %}
+<section>
+  <h2 class="h5 text-primary mb-2">Workflow States</h2>
+  <div class="card shadow-sm"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>State</th><th>Can move to</th><th>Issues</th></tr></thead>
+    <tbody>{% for w in workflow %}<tr><td><span class="badge rounded-pill {{ w.key|status_badge }}">{{ w.label }}</span></td><td>{{ w.next|join:", "|default:"-" }}</td><td>{{ w.count }}</td></tr>{% endfor %}</tbody>
+  </table></div></div>
+</section>
+{% endif %}
+{% endblock %}

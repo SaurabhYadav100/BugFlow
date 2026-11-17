@@ -1,0 +1,6 @@
+﻿State,Can Move To,Issues In State
+Open,In Progress,46
+In Progress,"Testing, Open",28
+Testing,"Resolved, In Progress",10
+Resolved,"Closed, Open",31
+Closed,Open,10

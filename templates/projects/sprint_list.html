@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0">Sprints</h1><a class="btn btn-primary" href="{% url 'sprint_create' %}">{% icon "plus" 15 %} Create Sprint</a></div>
+<div class="card shadow-sm"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  <thead class="table-light"><tr><th>Sprint</th><th>Project</th><th>Status</th><th>Dates</th><th>Progress</th><th>Action</th></tr></thead>
+  <tbody>{% for s in sprints %}<tr>
+    <td><a class="fw-semibold text-decoration-none" href="{% url 'sprint_detail' s.pk %}">{{ s.name }}</a><div class="small text-body-secondary">{{ s.goal }}</div></td>
+    <td>{{ s.project.name }}</td>
+    <td><span class="badge rounded-pill {{ s.state|sprint_badge }}">{{ s.state|title }}</span></td>
+    <td class="text-nowrap">{{ s.start_date|date:"M d" }} – {{ s.end_date|date:"M d, Y" }}<div class="small text-body-secondary">{{ s.duration_label }}</div></td>
+    <td style="min-width:150px"><div class="small mb-1">{{ s.done_count }} of {{ s.issue_count }} done</div>
+    <div class="progress" style="height:6px" role="progressbar" aria-label="Sprint progress"><div class="progress-bar bg-success" style="width: {% widthratio s.done_count s.issue_count 100 %}%"></div></div></td>
+    <td class="text-nowrap"><a class="btn btn-sm btn-primary" href="{% url 'sprint_detail' s.pk %}">Open board</a>
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'sprint_edit' s.pk %}">Edit</a>
+      <a class="btn btn-sm btn-outline-danger" href="{% url 'sprint_delete' s.pk %}">Delete</a></td></tr>
+  {% empty %}<tr><td colspan="6" class="text-center text-body-secondary py-4">No sprints yet. Create one, then add issues from the backlog.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

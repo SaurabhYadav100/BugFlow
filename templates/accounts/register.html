@@ -1,0 +1,41 @@
+{% load static ui_tags %}<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register - BugFlow</title>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}"><link rel="stylesheet" href="{% static 'css/bugflow.css' %}"></head>
+<body>
+<div class="container min-vh-100 d-flex align-items-center py-4"><div class="row justify-content-center align-items-center g-4 w-100">
+  <div class="col-12 col-md-8 col-lg-5">
+    <div class="card shadow-sm"><div class="card-body p-4 p-md-5">
+      <div class="auth-logo d-flex justify-content-center align-items-center gap-2 fs-3 fw-bold mb-3">{% icon "bug" 34 %}<span>BugFlow</span></div>
+      <h1 class="h4 text-center mb-1">Create Your Account</h1>
+      <p class="text-body-secondary text-center small mb-4">Join BugFlow to manage issues and collaborate with your team.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="mb-3"><label class="form-label fw-semibold small" for="{{ form.name.id_for_label }}">Full Name</label>
+          <div class="input-group"><span class="input-group-text bg-body-tertiary">{% icon "user" 17 %}</span>{{ form.name }}</div>{% for e in form.name.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</div>
+        <div class="mb-3"><label class="form-label fw-semibold small" for="{{ form.email.id_for_label }}">Email Address</label>
+          <div class="input-group"><span class="input-group-text bg-body-tertiary">{% icon "mail" 17 %}</span>{{ form.email }}</div>{% for e in form.email.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</div>
+        <div class="mb-3"><label class="form-label fw-semibold small" for="{{ form.password1.id_for_label }}">Password</label>
+          <div class="input-group"><span class="input-group-text bg-body-tertiary">{% icon "lock" 17 %}</span>{{ form.password1 }}</div>{% for e in form.password1.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</div>
+        <div class="mb-4"><label class="form-label fw-semibold small" for="{{ form.password2.id_for_label }}">Confirm Password</label>
+          <div class="input-group"><span class="input-group-text bg-body-tertiary">{% icon "lock" 17 %}</span>{{ form.password2 }}</div>{% for e in form.password2.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</div>
+        <button class="btn btn-primary w-100 py-2" type="submit">Register</button>
+      </form>
+      <p class="text-center mt-4 mb-0 small">Already have an account? <a class="fw-semibold text-decoration-none" href="{% url 'login' %}">Login</a></p>
+    </div></div>
+  </div>
+  <div class="col-lg-3 d-none d-lg-block text-center">
+    <svg viewBox="0 0 220 150" fill="none" aria-hidden="true" class="w-100 mb-2">
+      <rect x="30" y="14" width="150" height="96" rx="8" fill="#e8f1ff" stroke="#7aa7ee" stroke-width="3"/><rect x="40" y="24" width="130" height="76" rx="3" fill="#fff"/>
+      <path d="M2 122h206l-10 12H14z" fill="#b8d0f5"/>
+      <g transform="translate(105 62)" stroke="#1570ef" stroke-width="3" stroke-linecap="round" fill="#dbe9ff"><ellipse cx="0" cy="6" rx="13" ry="17"/><circle cx="0" cy="-16" r="8"/>
+        <path d="M0 -10v32M-13 0h-10M13 0h10M-11 14l-9 7M11 14l9 7M-6 -22l-5 -7M6 -22l5 -7"/></g>
+      <circle cx="28" cy="30" r="9" stroke="#9fc0f2" stroke-width="3"/><circle cx="194" cy="96" r="8" stroke="#9fc0f2" stroke-width="3"/>
+    </svg>
+    <p class="fw-semibold text-primary mb-1">Track. Collaborate. Resolve.</p>
+    <p class="small text-body-secondary">Manage your software issues with BugFlow and keep your projects on track.</p>
+  </div>
+</div></div>
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body></html>

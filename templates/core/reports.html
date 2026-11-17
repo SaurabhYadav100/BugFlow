@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<h1 class="h3 mb-4">Reports</h1>
+<form class="card shadow-sm mb-3" method="get"><div class="card-body row g-3 align-items-end">
+  <div class="col-md-6 col-xl-4"><label class="form-label fw-semibold small" for="rtype">Select Report Type</label>
+    <select class="form-select" id="rtype" name="type">{% for k, label in report_types %}<option value="{{ k }}" {% if k == rtype %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="col-auto"><button class="btn btn-primary px-4" type="submit">Generate</button></div>
+</div></form>
+
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card shadow-sm h-100"><div class="card-body">
+    <h2 class="h6 mb-3">Issues by Type</h2>
+    <div class="d-flex align-items-center gap-4 flex-wrap">
+      <div class="bf-donut" style="background: {{ donut }}"><div class="bf-donut-center"><strong class="fs-3 lh-1">{{ total }}</strong><span class="small text-body-secondary">Total</span></div></div>
+      <ul class="list-unstyled mb-0 small">{% for t in by_type %}<li class="d-flex align-items-center gap-2 mb-2"><i class="bf-legend-dot" style="background: {{ t.color }}"></i>{{ t.label }}<b class="ms-auto ps-4">{{ t.count }}</b></li>{% endfor %}</ul>
+    </div>
+  </div></div></div>
+  <div class="col-lg-6"><div class="card shadow-sm h-100"><div class="card-body">
+    <h2 class="h6 mb-3">Issues by Status</h2>
+    <div class="bf-vbars">{% for s in by_status %}<div class="bf-vbar"><b>{{ s.count }}</b><div class="bf-vbar-track"><i style="height: {{ s.height }}%; background: {{ s.color }}"></i></div><span>{{ s.label }}</span></div>{% endfor %}</div>
+  </div></div></div>
+</div>
+
+<div class="card shadow-sm mt-3"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h6 mb-0">Report Details &middot; {{ report_title }}</h2>
+    <a class="btn btn-primary btn-sm" href="{% url 'report_export' %}?type={{ rtype }}">{% icon "download" 14 %} Export PDF</a></div>
+  <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>Created Date</th></tr></thead>
+    <tbody>{% for i in rows %}<tr>
+      <td><a href="{% url 'issue_detail' i.pk %}">{{ i.key }}</a></td><td>{{ i.title }}</td><td>{{ i.get_issue_type_display }}</td>
+      <td><span class="badge rounded-pill {{ i.priority|priority_badge }}">{{ i.get_priority_display }}</span></td><td><span class="badge rounded-pill {{ i.status|status_badge }}">{{ i.get_status_display }}</span></td>
+      <td>{{ i.assignee.name|default:"Unassigned" }}</td><td>{{ i.created_at|date:"M d, Y" }}</td></tr>
+    {% empty %}<tr><td colspan="7" class="text-center text-body-secondary py-4">No issues match this report.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if more %}<p class="small text-body-secondary mt-3 mb-0">Showing the first 25 of {{ total }} issues. Export the PDF for the full list.</p>{% endif %}
+</div></div>
+{% endblock %}

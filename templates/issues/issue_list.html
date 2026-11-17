@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Issues</h1>
+  {% if user.can_report %}<a class="btn btn-primary" href="{% url 'issue_create' %}">{% icon "plus" 15 %} Create Issue</a>{% endif %}</div>
+
+<form class="card shadow-sm mb-3" method="get"><div class="card-body py-3"><div class="row g-2 align-items-center">
+  <div class="col-12 col-lg"><div class="input-group"><span class="input-group-text bg-body-tertiary">{% icon "search" 16 %}</span>
+    <input class="form-control" type="search" name="q" value="{{ request.GET.q }}" placeholder="Search by title or ID..." aria-label="Search issues"></div></div>
+  <div class="col-6 col-lg-auto"><select class="form-select" name="project" data-autosubmit aria-label="Project"><option value="">All Projects</option>{% for p in projects %}<option value="{{ p.pk }}" {% if request.GET.project == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select></div>
+  <div class="col-6 col-lg-auto"><select class="form-select" name="type" data-autosubmit aria-label="Type"><option value="">All Types</option>{% for v, l in types %}<option value="{{ v }}" {% if request.GET.type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="col-6 col-lg-auto"><select class="form-select" name="status" data-autosubmit aria-label="Status"><option value="">All Status</option>{% for v, l in statuses %}<option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="col-6 col-lg-auto"><select class="form-select" name="priority" data-autosubmit aria-label="Priority"><option value="">All Priority</option>{% for v, l in priorities %}<option value="{{ v }}" {% if request.GET.priority == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  {% if has_filters %}<div class="col-auto"><a class="fw-semibold text-decoration-none" href="{% url 'issue_list' %}">Clear</a></div>{% endif %}
+</div></div></form>
+
+<div class="card shadow-sm"><div class="card-body">
+  <form method="post" action="{% url 'issue_bulk_delete' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+  {% if user.can_manage %}<div class="alert alert-primary d-none align-items-center justify-content-between py-2" id="bulkBar"><span><b data-count>0</b> selected</span>
+    <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete the selected issues?')">Delete selected</button></div>{% endif %}
+  <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr>{% if user.can_manage %}<th><input class="form-check-input" type="checkbox" data-select-all aria-label="Select all"></th>{% endif %}
+      <th>ID</th><th>Title</th><th>Project</th><th>Module</th><th>Type</th><th>Priority</th><th>Severity</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for i in issues %}<tr>
+      {% if user.can_manage %}<td><input class="form-check-input" type="checkbox" name="ids" value="{{ i.pk }}" data-select-row aria-label="Select {{ i.key }}"></td>{% endif %}
+      <td><a href="{% url 'issue_detail' i.pk %}">{{ i.key }}</a></td><td>{{ i.title }}</td><td>{{ i.project.name }}</td><td>{{ i.get_module_display|default:"-" }}</td><td>{{ i.get_issue_type_display }}</td>
+      <td><span class="badge rounded-pill {{ i.priority|priority_badge }}">{{ i.get_priority_display }}</span></td><td><span class="badge rounded-pill {{ i.severity|priority_badge }}">{{ i.get_severity_display }}</span></td>
+      <td><span class="badge rounded-pill {{ i.status|status_badge }}">{{ i.get_status_display }}</span></td><td>{{ i.assignee.name|default:"Unassigned" }}</td>
+      <td class="text-nowrap">
+        <a class="btn btn-sm btn-link text-secondary p-1" href="{% url 'issue_detail' i.pk %}" title="View" aria-label="View {{ i.key }}">{% icon "eye" 16 %}</a>
+        {% if i.user_can_edit %}<a class="btn btn-sm btn-link text-secondary p-1" href="{% url 'issue_edit' i.pk %}" title="Edit" aria-label="Edit {{ i.key }}">{% icon "edit" 16 %}</a>{% endif %}
+        {% if user.can_manage %}
+          <button type="button" class="btn btn-sm btn-link text-secondary p-1" title="Assign" aria-label="Assign {{ i.key }}" data-bs-toggle="modal" data-bs-target="#assignModal" data-action="{% url 'issue_update' i.pk %}" data-label="{{ i.key }} ({{ i.title }})" data-assignee="{{ i.assignee_id|default_if_none:'' }}">{% icon "user-plus" 16 %}</button>
+          <button type="button" class="btn btn-sm btn-link text-danger p-1" title="Delete" aria-label="Delete {{ i.key }}" data-bs-toggle="modal" data-bs-target="#deleteModal" data-action="{% url 'issue_delete' i.pk %}" data-label="{{ i.key }} - {{ i.title }}">{% icon "trash" 16 %}</button>
+        {% endif %}
+      </td></tr>
+    {% empty %}<tr><td colspan="10" class="text-center text-body-secondary py-4">No issues match these filters.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+  </form>
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <span class="small text-body-secondary">{% if paginator.count %}Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ paginator.count }} issues{% else %}Showing 0 issues{% endif %}</span>
+    {% if is_paginated %}<nav aria-label="Pages"><ul class="pagination pagination-sm mb-0">
+      {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page_obj.previous_page_number }}" aria-label="Previous page">&lsaquo;</a></li>{% endif %}
+      {% for n in page_range %}{% if n == page_obj.number %}<li class="page-item active" aria-current="page"><span class="page-link">{{ n }}</span></li>
+        {% elif n == paginator.ELLIPSIS %}<li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+        {% else %}<li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ n }}">{{ n }}</a></li>{% endif %}{% endfor %}
+      {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page_obj.next_page_number }}" aria-label="Next page">&rsaquo;</a></li>{% endif %}
+    </ul></nav>{% endif %}
+  </div>
+</div></div>
+{% if user.can_manage %}{% include "issues/_dialogs.html" %}{% endif %}
+{% endblock %}

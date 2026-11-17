@@ -1,0 +1,19 @@
+{% load static ui_tags %}<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login Successful - BugFlow</title>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}"><link rel="stylesheet" href="{% static 'css/bugflow.css' %}"></head>
+<body>
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-4"><div class="col-12 col-sm-9 col-md-6 col-lg-4">
+  <div class="card shadow-sm text-center"><div class="card-body p-4 p-md-5">
+    <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white p-3 mb-3">{% icon "check" 38 %}</span>
+    <h1 class="h3">Login Successful!</h1>
+    <p class="text-body-secondary">Welcome back, {{ user.name }}!</p>
+    <ul class="list-group text-start my-4">
+      <li class="list-group-item bg-success-subtle d-flex align-items-center gap-2"><span class="text-success">{% icon "user" 17 %}</span><b>Role:</b> {{ user.get_role_display }}</li>
+      <li class="list-group-item bg-success-subtle d-flex align-items-center gap-2"><span class="text-success">{% icon "check-circle" 17 %}</span><b>Session:</b> Authenticated (secure cookie)</li>
+    </ul>
+    <a class="btn btn-primary w-100 py-2" href="{% url 'dashboard' %}">Go to Dashboard</a>
+  </div></div>
+</div></div>
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body></html>

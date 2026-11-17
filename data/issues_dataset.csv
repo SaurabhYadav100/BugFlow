@@ -1,0 +1,126 @@
+project,title,type,priority,severity,status,description,resolution_notes
+Online Shopping,Login button not working on mobile Safari,bug,high,high,open,"Tapping Login on iPhone does nothing, while desktop Chrome works.",
+Hospital Management,Appointment calendar shows wrong date,bug,high,high,open,Appointments appear one day earlier for patients in some time zones.,
+Banking App,Transfer fails with timeout on slow networks,bug,high,high,open,Fund transfers time out on 3G and the user is not sure if money moved.,
+School ERP,Attendance report counts holidays as absent,bug,high,high,open,Monthly attendance percentage drops because holidays are marked absent.,
+Travel Booking,Flight search returns no results for round trips,bug,critical,critical,open,Searching for return flights shows an empty list even though flights exist.,
+Online Shopping,Cart empties after page refresh,bug,high,high,open,"Items disappear from the cart when the page reloads, for guests and signed-in users.",
+Hospital Management,Patient search is case sensitive,bug,medium,medium,open,Searching for 'sharma' does not find patients named 'Sharma'.,
+Banking App,Account balance not refreshed after transfer,bug,medium,medium,open,The balance on the home screen stays old until the app is restarted.,
+School ERP,Report card shows wrong grade for 90 marks,bug,high,high,open,Students scoring exactly 90 receive grade B instead of A.,
+Travel Booking,Hotel prices shown without taxes,bug,high,high,open,The final price at payment is higher than the price on the list.,
+Online Shopping,Payment fails with expired card error for valid cards,bug,critical,critical,open,Customers with cards expiring this year are told the card has expired.,
+Hospital Management,Prescription print layout cuts off medicine names,bug,medium,medium,open,Long medicine names are truncated on the printed prescription.,
+Banking App,OTP not received on some carriers,bug,high,high,open,Customers on two mobile carriers never receive the login OTP.,
+School ERP,Timetable clashes not detected,bug,medium,medium,open,The same teacher can be scheduled in two classes in the same period.,
+Travel Booking,Booking confirmation shows wrong passenger name,bug,high,high,open,"With several travellers, the confirmation lists the first name for everyone.",
+Online Shopping,Wrong total shown after applying discount code,bug,medium,medium,open,Order total is higher than expected once a percentage coupon is applied.,
+Hospital Management,Duplicate patient records created on double click,bug,high,high,open,Double clicking Register creates two identical patient records.,
+Banking App,Statement PDF shows wrong date range,bug,medium,medium,open,The generated statement is missing transactions from the last day selected.,
+School ERP,Fee receipt number repeats,bug,critical,critical,open,Two parents received receipts with the same receipt number.,
+Travel Booking,Seat selection map does not load,bug,medium,medium,resolved,The seat map area stays blank for some airlines.,Fixed the CORS configuration for the seat map service.
+Online Shopping,Search returns duplicate products,bug,medium,medium,resolved,The same product appears two or three times in search results.,A join on product variants created duplicates; added DISTINCT on product id.
+Hospital Management,Doctor schedule overlaps allowed,bug,critical,critical,resolved,Two appointments can be booked for the same doctor at the same time.,"Added overlap validation on create and update, with tests."
+Banking App,Login blocked after three failed attempts forever,bug,high,high,resolved,Users who mistype the password three times are never unlocked.,The lock expiry job was never scheduled; added a 30 minute automatic unlock.
+School ERP,Parent login shows another child's marks,bug,critical,critical,resolved,A parent with two children sees marks of a student from another family.,Query was missing the student filter; added an ownership check and test.
+Travel Booking,Cancelled booking still charged,bug,critical,critical,resolved,Customers who cancel are not refunded automatically.,The refund job failed silently; added retries and alerting.
+Online Shopping,Order confirmation email not sent,bug,high,high,resolved,Customers do not receive any email after placing an order.,SMTP credentials had been rotated; updated settings and added an alert on send failures.
+Hospital Management,Lab report upload fails above 5 MB,bug,medium,medium,resolved,Uploading scanned lab reports larger than 5 MB shows a generic error.,Raised the upload limit and streamed files to storage instead of memory.
+Banking App,Biometric login crashes on Android 12,bug,critical,critical,resolved,The app closes immediately when fingerprint login is used on Android 12.,Updated the biometric library and handled the missing key store exception.
+School ERP,Bulk student import fails on special characters,bug,medium,medium,resolved,Importing a CSV with names containing accents stops with an error.,Read the CSV as UTF-8 with BOM and normalised names.
+Travel Booking,Date picker allows past dates,bug,low,low,resolved,Users can choose a departure date earlier than today.,Set the minimum date to today on all date pickers.
+Online Shopping,Product images load slowly on listing page,bug,low,low,resolved,The category page takes over eight seconds to show product pictures.,Full-size images were served; generated thumbnails and enabled lazy loading.
+Hospital Management,Wrong age calculated for newborn patients,bug,low,low,resolved,Babies under one year are shown as 0 years with no months.,Age calculation now shows months and days for patients under two years.
+Banking App,Currency conversion rounding error,bug,medium,medium,resolved,Converted amounts differ by one paisa from the bank's rate sheet.,Used decimal arithmetic with bankers rounding instead of floats.
+School ERP,Exam schedule printed in wrong order,bug,low,low,resolved,Exams are listed by subject name instead of by date.,Sorted by date and then by start time.
+Travel Booking,Currency shown incorrectly after changing region,bug,medium,medium,resolved,Switching region keeps old currency symbols on some pages.,Stored the currency preference in the session instead of per request.
+Online Shopping,Coupon can be reused unlimited times,bug,high,high,resolved,A single-use coupon code still works on every new order.,Usage count was never incremented; enforced a per-user limit with a unique constraint.
+Hospital Management,Billing total ignores insurance co-pay,bug,high,high,resolved,Invoices do not include the patient co-pay amount.,Included co-pay in the invoice calculation and added edge-case tests.
+Banking App,Push notifications duplicated,bug,low,low,resolved,Each transaction alert arrives two or three times.,Deduplicated device tokens on registration.
+School ERP,Teacher cannot edit marks after submission,bug,medium,medium,resolved,Teachers need to correct a typo but the marks are locked.,Added an unlock request flow approved by the principal.
+Travel Booking,Duplicate bookings on double payment click,bug,high,high,resolved,Pressing Pay twice creates two bookings and two charges.,Added an idempotency token to the payment request.
+Online Shopping,Password reset link expires immediately,bug,medium,medium,resolved,The reset email link says it has expired as soon as it is clicked.,Token timestamp mixed UTC and local time; unified everything to UTC.
+Hospital Management,Session expires during long consultation notes,bug,medium,medium,resolved,Doctors lose unsaved notes when the session times out mid consultation.,Extended session for signed-in clinicians and added autosave of notes.
+Banking App,Beneficiary list not sorted alphabetically,bug,low,low,resolved,"Saved payees appear in random order, making them hard to find.",Added ordering by name to the query.
+School ERP,Library due date ignores weekends,bug,low,low,resolved,Books fall due on Sundays when the library is closed.,Used the school working-day calendar for due dates.
+Travel Booking,Mobile layout of itinerary is broken,bug,low,low,resolved,Itinerary tables overflow the screen on phones.,Replaced fixed widths with a responsive grid.
+Online Shopping,Add wishlist feature,feature,low,low,closed,Let customers save products to a wishlist and move them to the cart later.,"Implemented wishlist model, API and UI; released in version 1.4."
+Hospital Management,Add SMS appointment reminders,feature,medium,low,closed,Send patients a reminder message the day before their appointment.,Integrated an SMS provider with a 24-hour reminder job.
+Banking App,Add spending insights chart,feature,medium,low,closed,Show a monthly breakdown of spending by category.,Built the insights screen with category totals and a monthly chart.
+School ERP,Add online fee payment,feature,high,low,closed,Parents should be able to pay term fees online.,Integrated the payment gateway and automatic receipts.
+Travel Booking,Add price alerts for flights,feature,medium,low,closed,Notify users when a flight price drops below their target.,Built price alert subscriptions with a daily check job.
+Online Shopping,Export order history to CSV,feature,medium,low,closed,Customers want to download their past orders as a spreadsheet.,Added a CSV export button on the orders page with date range filter.
+Hospital Management,Role based access for nurses,feature,high,low,closed,Nurses should see vitals and notes but not billing details.,Added a nurse role with scoped permissions and updated menus.
+Banking App,Add scheduled transfers,feature,high,low,closed,Allow customers to schedule recurring transfers such as rent.,Implemented scheduled and recurring transfers with reminders.
+School ERP,Add parent-teacher meeting scheduler,feature,medium,low,closed,Let parents pick a free slot for the parent-teacher meeting.,Built the slot booking page with confirmation messages.
+Travel Booking,Add loyalty points,feature,low,low,closed,Reward repeat customers with points redeemable on bookings.,Implemented points earning and redemption at checkout.
+Online Shopping,Checkout crashes when address line is empty,bug,high,high,testing,The server returns a 500 error if the second address line is left blank.,
+Hospital Management,Discharge summary shows another patient's data,bug,critical,critical,testing,A printed discharge summary contained details of a different patient.,
+Banking App,Mini statement missing last transaction,bug,high,high,testing,The five-line mini statement omits the most recent entry.,
+School ERP,Student photo upload rotates sideways,bug,low,low,testing,Photos taken on phones appear rotated after upload.,
+Travel Booking,Airline logos missing on results,bug,low,low,testing,Several airlines show a blank square instead of a logo.,
+Online Shopping,Upgrade payment gateway SDK to latest version,task,medium,low,testing,The current SDK is deprecated and will stop working at the end of the quarter.,
+Hospital Management,Migrate patient database to new server,task,high,low,testing,Move the production database to the new hardware with minimal downtime.,
+Banking App,Upgrade encryption library,task,critical,low,testing,The current library has a published vulnerability and must be upgraded.,
+School ERP,Archive previous academic year data,task,medium,low,testing,Move last year's records to an archive to keep the main tables fast.,
+Travel Booking,Switch to new maps provider,task,medium,low,testing,The current maps API will be discontinued; migrate to the new provider.,
+Online Shopping,Order status not updating after shipment,bug,high,high,in_progress,Orders stay on Processing even after the courier marks them as shipped.,
+Hospital Management,Emergency admission form is too slow,bug,high,high,in_progress,The form takes about 20 seconds to load during peak hours.,
+Banking App,Card block request stuck in pending,bug,critical,critical,in_progress,Blocking a lost card stays pending and the card still works.,
+School ERP,Homework notifications not delivered,bug,medium,medium,in_progress,Parents do not get alerts when new homework is posted.,
+Travel Booking,Hotel availability out of sync,bug,high,high,in_progress,Rooms shown as available are sold out at confirmation.,
+Online Shopping,Add support for multiple currencies,feature,medium,low,in_progress,Show prices and take payment in the customer's local currency.,
+Hospital Management,Add barcode scanning for wristbands,feature,low,low,in_progress,Scan patient wristbands to open the record instead of typing the ID.,
+Banking App,Add fingerprint approval for large transfers,feature,medium,low,in_progress,Require biometric confirmation for transfers above a set limit.,
+School ERP,Add bus tracking,feature,medium,low,in_progress,Show the live location of the school bus to parents.,
+Travel Booking,Add travel insurance add-on,feature,medium,low,in_progress,Offer optional travel insurance during checkout.,
+Online Shopping,Customer cannot download invoice PDF,support,medium,medium,in_progress,A customer reports the invoice link gives a blank page.,
+Hospital Management,Receptionist cannot reschedule appointments,support,medium,medium,in_progress,Reception staff report the Reschedule button is missing for them.,
+Banking App,Customer cannot update mobile number,support,medium,medium,in_progress,A customer reports the update mobile number form rejects valid numbers.,
+School ERP,Teacher forgot password and cannot log in,support,medium,medium,in_progress,A teacher is locked out and the reset page shows an error.,
+Travel Booking,Customer needs to change travel date,support,medium,medium,in_progress,A customer asks how to move a flight booking to another date.,
+Online Shopping,Product reviews allow script tags,bug,critical,critical,in_progress,HTML typed into a review is rendered on the product page without escaping.,
+Hospital Management,Audit log missing for record deletions,bug,high,high,in_progress,Deleted patient records leave no trace in the audit log.,
+Banking App,Interest calculation off by one day,bug,high,high,in_progress,Savings interest is calculated for one day fewer in leap years.,
+School ERP,Marks entry page freezes with 200 students,bug,high,high,in_progress,The page becomes unresponsive when a large class is loaded.,
+Travel Booking,Search is slow during peak hours,bug,high,high,in_progress,Results take more than 30 seconds in the evening.,
+Online Shopping,Add dark mode,feature,low,low,open,Provide a dark theme option for the storefront and account pages.,
+Hospital Management,Add multilingual patient forms,feature,low,low,open,Offer registration forms in Hindi and Tamil as well as English.,
+Banking App,Add QR code payments,feature,medium,low,open,Let users pay merchants by scanning a QR code.,
+School ERP,Add multi-language report cards,feature,low,low,open,Print report cards in the parent's preferred language.,
+Travel Booking,Add train booking,feature,medium,low,open,Support booking train tickets alongside flights and hotels.,
+Online Shopping,Set up automated database backups,task,medium,low,open,Nightly backups with a restore test are needed for the production database.,
+Hospital Management,Write user guide for new staff,task,low,low,open,"Create a short guide covering registration, billing and reports.",
+Banking App,Rotate API keys quarterly,task,medium,low,open,Define and automate rotation of third-party API keys every quarter.,
+School ERP,Clean up duplicate class sections,task,low,low,open,Several classes have two sections with the same name.,
+Travel Booking,Document the booking API,task,low,low,open,Publish developer documentation for the booking endpoints.,
+Online Shopping,Help with bulk product import format,support,low,low,open,A seller asks which columns are required for the CSV product import.,
+Hospital Management,Patient portal password reset not working,support,medium,medium,open,A patient reports the reset email never arrives.,
+Banking App,Help with reactivating dormant account,support,low,low,open,A customer asks what documents are needed to reactivate a dormant account.,
+School ERP,Help with promoting students to next class,support,medium,medium,open,The office asks how to promote a whole class at the end of the year.,
+Travel Booking,Help with refund status,support,low,low,open,A customer asks where to track the status of a refund.,
+Online Shopping,Login button not working,bug,high,high,open,Login button not working. Steps to reproduce and expected behaviour are discussed in the comments.,
+Hospital Management,Payment failure,bug,high,high,in_progress,Payment failure. Steps to reproduce and expected behaviour are discussed in the comments.,
+Banking App,Add dark mode,feature,medium,medium,open,Add dark mode. Steps to reproduce and expected behaviour are discussed in the comments.,
+School ERP,Wrong total in dashboard,bug,medium,medium,resolved,Wrong total in dashboard. Steps to reproduce and expected behaviour are discussed in the comments.,Root cause was found in the calculation order; fixed and covered by a regression test.
+Travel Booking,Application crash,bug,critical,critical,in_progress,Application crash. Steps to reproduce and expected behaviour are discussed in the comments.,
+Online Shopping,UI alignment issue,bug,low,low,open,UI alignment issue. Steps to reproduce and expected behaviour are discussed in the comments.,
+Hospital Management,Search returns duplicate products,bug,medium,medium,open,Search returns duplicate products. Steps to reproduce and expected behaviour are discussed in the comments.,
+Banking App,Cart empties after refresh,bug,high,high,open,Cart empties after refresh. Steps to reproduce and expected behaviour are discussed in the comments.,
+School ERP,Report export times out,bug,medium,medium,in_progress,Report export times out. Steps to reproduce and expected behaviour are discussed in the comments.,
+Travel Booking,Email notifications not sent,bug,high,high,open,Email notifications not sent. Steps to reproduce and expected behaviour are discussed in the comments.,
+Online Shopping,Profile photo upload fails,bug,low,low,in_progress,Profile photo upload fails. Steps to reproduce and expected behaviour are discussed in the comments.,
+Hospital Management,Wrong tax on invoices,bug,high,high,resolved,Wrong tax on invoices. Steps to reproduce and expected behaviour are discussed in the comments.,Root cause was found in the calculation order; fixed and covered by a regression test.
+Banking App,Session expires too quickly,bug,medium,medium,resolved,Session expires too quickly. Steps to reproduce and expected behaviour are discussed in the comments.,Root cause was found in the calculation order; fixed and covered by a regression test.
+School ERP,Appointment calendar shows wrong date,bug,medium,medium,open,Appointment calendar shows wrong date. Steps to reproduce and expected behaviour are discussed in the comments.,
+Travel Booking,Slow page load on order history,bug,medium,medium,in_progress,Slow page load on order history. Steps to reproduce and expected behaviour are discussed in the comments.,
+Online Shopping,Password reset link expired,bug,low,low,open,Password reset link expired. Steps to reproduce and expected behaviour are discussed in the comments.,
+Hospital Management,Export orders to CSV,feature,medium,medium,open,Export orders to CSV. Steps to reproduce and expected behaviour are discussed in the comments.,
+Banking App,Add email reminders,feature,low,low,in_progress,Add email reminders. Steps to reproduce and expected behaviour are discussed in the comments.,
+School ERP,Multi-language support,feature,low,low,open,Multi-language support. Steps to reproduce and expected behaviour are discussed in the comments.,
+Travel Booking,Upgrade database to latest version,task,medium,medium,open,Upgrade database to latest version. Steps to reproduce and expected behaviour are discussed in the comments.,
+Online Shopping,Write API documentation,task,low,low,in_progress,Write API documentation. Steps to reproduce and expected behaviour are discussed in the comments.,
+Hospital Management,Set up automated backups,task,medium,medium,resolved,Set up automated backups. Steps to reproduce and expected behaviour are discussed in the comments.,Root cause was found in the calculation order; fixed and covered by a regression test.
+Banking App,Customer cannot reset password,support,high,high,open,Customer cannot reset password. Steps to reproduce and expected behaviour are discussed in the comments.,
+School ERP,Help with bulk import,support,low,low,in_progress,Help with bulk import. Steps to reproduce and expected behaviour are discussed in the comments.,
+Travel Booking,Account locked after failed logins,support,medium,medium,resolved,Account locked after failed logins. Steps to reproduce and expected behaviour are discussed in the comments.,Root cause was found in the calculation order; fixed and covered by a regression test.

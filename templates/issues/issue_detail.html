@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<p class="mb-3"><a class="text-decoration-none d-inline-flex align-items-center gap-2" href="{% url 'issue_list' %}">{% icon "arrow-left" 15 %} Back to Issues</a></p>
+
+<div class="card shadow-sm"><div class="card-body p-4">
+  <div class="d-flex justify-content-between flex-wrap gap-3 mb-4">
+    <div class="d-flex gap-3"><span class="d-inline-flex align-self-start rounded-3 p-2 bg-warning-subtle text-warning-emphasis">{% icon "bug" 22 %}</span>
+      <div><div class="mb-1"><b>{{ issue.key }}</b> <span class="badge rounded-pill {{ issue.priority|priority_badge }}">{{ issue.get_priority_display }}</span></div><h1 class="h4 mb-0">{{ issue.title }}</h1></div></div>
+    {% if user_can_update %}
+    <form method="post" action="{% url 'issue_update' issue.pk %}">{% csrf_token %}
+      <label class="form-label small text-body-secondary mb-1" for="statusSel">Status</label>
+      <div class="input-group"><select class="form-select" id="statusSel" name="status">{% for v, l in status_choices %}<option value="{{ v }}" {% if v == issue.status %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+        <button class="btn btn-primary" type="submit">Update Status</button></div>
+    </form>
+    {% else %}<div><div class="small text-body-secondary mb-1">Status</div><span class="badge rounded-pill {{ issue.status|status_badge }}">{{ issue.get_status_display }}</span></div>{% endif %}
+  </div>
+  <dl class="row row-cols-2 row-cols-md-4 g-3 mb-0">
+    <div class="col"><dt class="small text-body-secondary fw-normal">Project</dt><dd class="mb-0 fw-medium">{{ issue.project.name }}</dd></div>
+
+    <div class="col"><dt class="small text-body-secondary fw-normal">Affected Module</dt><dd class="mb-0 fw-medium">{{ issue.get_module_display|default:"-" }}</dd></div>
+    
+    <div class="col"><dt class="small text-body-secondary fw-normal">Type</dt><dd class="mb-0 fw-medium">{{ issue.get_issue_type_display }}</dd></div>
+    <div class="col"><dt class="small text-body-secondary fw-normal">Priority</dt><dd class="mb-0"><span class="badge rounded-pill {{ issue.priority|priority_badge }}">{{ issue.get_priority_display }}</span></dd></div>
+    <div class="col"><dt class="small text-body-secondary fw-normal">Severity</dt><dd class="mb-0"><span class="badge rounded-pill {{ issue.severity|priority_badge }}">{{ issue.get_severity_display }}</span></dd></div>
+    <div class="col"><dt class="small text-body-secondary fw-normal">Assigned To</dt><dd class="mb-0 fw-medium">{{ issue.assignee.name|default:"Unassigned" }}{% if issue.assignee %} ({{ issue.assignee.get_role_display }}){% endif %}</dd></div>
+    <div class="col"><dt class="small text-body-secondary fw-normal">Reported By</dt><dd class="mb-0 fw-medium">{{ issue.reporter.name }}</dd></div>
+    <div class="col"><dt class="small text-body-secondary fw-normal">Created Date</dt><dd class="mb-0 fw-medium">{{ issue.created_at|date:"M d, Y" }}</dd></div>
+    <div class="col"><dt class="small text-body-secondary fw-normal">Updated Date</dt><dd class="mb-0 fw-medium">{{ issue.updated_at|date:"M d, Y" }}</dd></div>
+    {% if issue.sprint %}<div class="col"><dt class="small text-body-secondary fw-normal">Sprint</dt><dd class="mb-0 fw-medium">{{ issue.sprint.name }}</dd></div>{% endif %}
+  </dl>
+</div></div>
+
+<div class="card shadow-sm mt-3"><div class="card-body p-4">
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'description' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-description" type="button" role="tab">Description</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'comments' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-comments" type="button" role="tab">Comments ({{ comments|length }})</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'attachments' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-attachments" type="button" role="tab">Attachments ({{ attachments|length }})</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'history' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#tab-history" type="button" role="tab">Activity History</button></li>
+  </ul>
+  <div class="tab-content pt-4">
+    <div class="tab-pane fade {% if active_tab == 'description' %}show active{% endif %}" id="tab-description" role="tabpanel">
+      <p>{{ issue.description|default:"No description provided."|linebreaksbr }}</p>
+      {% if issue.resolution_notes %}<h2 class="h6 mt-4">Resolution</h2><p class="mb-0">{{ issue.resolution_notes|linebreaksbr }}</p>{% endif %}
+    </div>
+    <div class="tab-pane fade {% if active_tab == 'comments' %}show active{% endif %}" id="tab-comments" role="tabpanel">
+      {% for c in comments %}<div class="d-flex gap-3 py-3 border-bottom">
+        <span class="rounded-circle bg-primary-subtle text-primary-emphasis fw-bold d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px">{{ c.author.initial }}</span>
+        <div><div class="small text-body-secondary mb-1"><b class="text-body">{{ c.author.name }}</b> &middot; {{ c.created_at|date:"M d, Y H:i" }}</div><div>{{ c.body|linebreaksbr }}</div></div></div>
+      {% empty %}<p class="text-body-secondary">No comments yet.</p>{% endfor %}
+      <form method="post" action="{% url 'issue_comment' issue.pk %}" class="mt-3">{% csrf_token %}
+        <label for="cbody" class="visually-hidden">Add a comment</label>
+        <textarea class="form-control mb-2" id="cbody" name="body" rows="3" placeholder="Write a comment..."></textarea>
+        <div class="text-end"><button class="btn btn-primary" type="submit">Add Comment</button></div>
+      </form>
+    </div>
+
+    <div class="tab-pane fade {% if active_tab == 'attachments' %}show active{% endif %}" id="tab-attachments" role="tabpanel">
+      <ul class="list-group list-group-flush mb-3">
+        {% for a in attachments %}<li class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+          <div><div class="fw-semibold">{{ a.original_name }}</div>
+            <div class="small text-body-secondary">{{ a.size|filesizeformat }} &middot; {{ a.uploaded_at|date:"M d, Y H:i" }} &middot; {{ a.uploaded_by.name|default:"Unknown" }}</div></div>
+          <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'attachment_download' a.pk %}">Download</a>
+            {% if user.can_manage or a.uploaded_by_id == user.id %}<form method="post" action="{% url 'attachment_delete' a.pk %}">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Remove this attachment?')">Remove</button></form>{% endif %}
+          </div></li>
+        {% empty %}<li class="list-group-item px-0 text-body-secondary">No attachments yet.</li>{% endfor %}
+      </ul>
+      <form method="post" action="{% url 'issue_attach' issue.pk %}" enctype="multipart/form-data" class="d-flex gap-2">{% csrf_token %}
+        <input class="form-control" type="file" name="attachments" multiple accept=".jpg,.jpeg,.png,.pdf" required aria-label="Choose files to upload">
+        <button class="btn btn-primary" type="submit">Upload</button></form>
+      <div class="form-text">PNG, JPG or PDF. Max 5 MB each, up to 5 files.</div>
+    </div>
+
+    <div class="tab-pane fade {% if active_tab == 'history' %}show active{% endif %}" id="tab-history" role="tabpanel">
+      <ul class="list-group list-group-flush">{% for h in history %}<li class="list-group-item px-0"><div>{{ h.text }}</div><div class="small text-body-secondary">{{ h.actor.name|default:"System" }} &middot; {{ h.created_at|date:"M d, Y H:i" }}</div></li>
+      {% empty %}<li class="list-group-item px-0 text-body-secondary">No history recorded.</li>{% endfor %}</ul>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
+    {% if user.can_manage %}<button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#assignModal" data-action="{% url 'issue_update' issue.pk %}" data-label="{{ issue.key }} ({{ issue.title }})" data-assignee="{{ issue.assignee_id|default_if_none:'' }}">{% icon "user-plus" 15 %} Assign</button>{% endif %}
+    {% if user_can_edit %}<a class="btn btn-primary px-4" href="{% url 'issue_edit' issue.pk %}">Edit</a>{% endif %}
+    {% if user.can_manage %}<button class="btn btn-danger px-4" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal" data-action="{% url 'issue_delete' issue.pk %}" data-label="{{ issue.key }} - {{ issue.title }}">Delete</button>{% endif %}
+  </div>
+</div></div>
+{% if user.can_manage %}{% include "issues/_dialogs.html" %}{% endif %}
+{% endblock %}

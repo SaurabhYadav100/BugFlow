@@ -1,0 +1,45 @@
+{% load static ui_tags %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ page_title|default:"BugFlow" }}{% endblock %} - BugFlow</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/bugflow.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top bf-topbar px-3">
+    <div class="d-flex align-items-center gap-3">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 m-0" href="{% url 'dashboard' %}">{% icon "bug" 28 %}<span>BugFlow</span></a>
+      <button class="btn btn-link text-white-50 p-1" id="menuToggle" type="button" aria-label="Toggle menu">{% icon "menu" 20 %}</button>
+    </div>
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <button class="btn btn-link text-white-50 p-1" type="button" aria-label="Notifications">{% icon "bell" 19 %}</button>
+      <div class="dropdown">
+        <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2 p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="bf-avatar">{{ user.initial }}</span><span class="d-none d-sm-inline fw-semibold">{{ user.get_role_display }}</span>{% icon "chevron-down" 14 %}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><a class="dropdown-item" href="{% url 'settings' %}">Settings</a></li>
+          <li><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="dropdown-item" type="submit">Log out</button></form></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <aside class="bf-sidebar" id="sidebar">{% sidebar %}</aside>
+
+  <main class="bf-main p-3 p-lg-4">
+    {% for m in messages %}
+      <div class="alert alert-{{ m.tags|default:'info' }} alert-dismissible fade show" role="alert">{{ m }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/bugflow.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

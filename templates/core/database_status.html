@@ -1,0 +1,38 @@
+{% load static ui_tags %}<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Database connection - BugFlow</title>
+<link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}"><link rel="stylesheet" href="{% static 'css/bugflow.css' %}"></head>
+<body>
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-7 col-xl-6">
+  <div class="card shadow-sm"><div class="card-body p-4">
+    {% if connected %}
+    <div class="alert alert-success d-flex align-items-center gap-3 p-3">
+      <span class="d-inline-flex rounded-circle bg-success text-white p-3">{% icon "check" 30 %}</span>
+      <div><h1 class="h5 text-success mb-1">Database Connected Successfully!</h1><div class="small">{{ db_type }} database '{{ db_name }}' is connected and ready.</div></div>
+    </div>
+    {% else %}
+    <div class="alert alert-danger d-flex align-items-center gap-3 p-3">
+      <span class="d-inline-flex rounded-circle bg-danger text-white p-3">{% icon "x-circle" 30 %}</span>
+      <div><h1 class="h5 text-danger mb-1">Database connection failed</h1><div class="small">Check the values in your .env file and make sure PostgreSQL is running.</div></div>
+    </div>
+    <pre class="bg-dark text-danger-emphasis p-3 rounded small" style="white-space: pre-wrap">{{ error }}</pre>
+    {% endif %}
+
+    <div class="card mb-3"><div class="card-body">
+      <h2 class="h6 mb-3">Database Configuration</h2>
+      <dl class="row mb-0">
+        <dt class="col-5 fw-normal border-bottom pb-2 mb-2">Database Type</dt><dd class="col-7 border-bottom pb-2 mb-2">{{ db_type }}</dd>
+        <dt class="col-5 fw-normal border-bottom pb-2 mb-2">Database Name</dt><dd class="col-7 border-bottom pb-2 mb-2 fw-bold">{{ db_name }}</dd>
+        <dt class="col-5 fw-normal border-bottom pb-2 mb-2">Username</dt><dd class="col-7 border-bottom pb-2 mb-2">{{ db_user }}</dd>
+        <dt class="col-5 fw-normal border-bottom pb-2 mb-2">Host</dt><dd class="col-7 border-bottom pb-2 mb-2">{{ db_host }}</dd>
+        <dt class="col-5 fw-normal">Port</dt><dd class="col-7 mb-0">{{ db_port }}</dd>
+      </dl>
+    </div></div>
+
+    <div class="alert alert-success mb-3"><div class="d-flex align-items-center gap-2 fw-semibold text-success">{% icon "check" 16 %} Application Status</div>
+      <div class="small ms-4">Django application is running on port {{ app_port }}.</div></div>
+    <div class="text-center"><a class="small text-decoration-none" href="{% url 'database' %}">Back to Database Tables</a></div>
+  </div></div>
+</div></div></div>
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body></html>

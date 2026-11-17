@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block content %}
+<h1 class="h3 mb-4 d-flex align-items-center gap-2"><a class="text-body" href="{{ cancel_url }}" aria-label="Back">{% icon "arrow-left" 20 %}</a> Update Issue</h1>
+<div class="row"><div class="col-lg-8 col-xl-6"><div class="card shadow-sm"><div class="card-body p-4">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="mb-3"><label class="form-label fw-semibold small" for="qIssue">Issue ID</label><input class="form-control" id="qIssue" value="{{ issue.key }}" readonly></div>
+    <div class="row"><div class="col-md-6">{% include "crud/_field.html" with field=form.assignee %}</div><div class="col-md-6">{% include "crud/_field.html" with field=form.status %}</div></div>
+    {% include "crud/_field.html" with field=form.comment %}
+    <div class="d-flex justify-content-end gap-2"><a class="btn btn-outline-secondary" href="{{ cancel_url }}">Cancel</a><button class="btn btn-primary px-4" type="submit">Save</button></div>
+  </form>
+</div></div></div></div>
+{% endblock %}

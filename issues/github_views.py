@@ -98,7 +98,7 @@ def github_view(request, issue_id=None):
         "status_key": _slug(status_raw),
         "description": _value(issue, "description", "details")[0],
         "module": _value(issue, "module", "component")[1] or "-",
-        "assigned_to": _person(getattr(issue, "assigned_to", None)),
+        "assignee": _person(getattr(issue, "assignee", None)),
         "created_on": _value(issue, "created_at", "created", "created_date")[0],
         "comments": comments,
     }

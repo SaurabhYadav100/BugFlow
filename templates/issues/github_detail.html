@@ -71,7 +71,7 @@
 
   <!-- Meta row -->
   <div class="gh-meta mb-3">
-    <div>{% icon "user" 24 %}<div><small>Assigned To</small><b>{{ assigned_to }}</b></div></div>
+    <div>{% icon "user" 24 %}<div><small>Assigned To</small><b>{{ assignee }}</b></div></div>
     <div>{% icon "calendar" 24 %}<div><small>Created On</small><b>{{ created_on|date:"M d, Y" }}</b></div></div>
     <div>{% icon "refresh" 24 %}<div><small>Status</small>
       <span class="badge rounded-pill {{ status_key|status_badge }}">{{ status }}</span></div></div>

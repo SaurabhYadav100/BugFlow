@@ -5,7 +5,7 @@ from issues.analytics_views import analytics_view
 from issues.github_views import github_view
 
 urlpatterns = [
-    path("django-admin/", admin.site.urls),
+    path("admin/", admin.site.urls),
     path("", include("accounts.urls")),
     path("", include("projects.urls")),
     path("", include("issues.urls")),

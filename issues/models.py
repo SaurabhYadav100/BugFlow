@@ -185,3 +185,44 @@ class GitHubLink(models.Model):
 
     def __str__(self):
         return f"{self.issue} -> {self.repository_name}"
+
+
+class PipelineRun(models.Model):
+    """One CI/CD (GitHub Actions) workflow run reported to BugFlow."""
+    STATUS_CHOICES = [("running", "Running"), ("success", "Success"), ("failed", "Failed")]
+
+    external_id = models.CharField(max_length=40, unique=True)      # GitHub run id
+    run_number = models.PositiveIntegerField()                      # shown as #2457
+    workflow_name = models.CharField(max_length=150, default="BugFlow CI/CD Pipeline")
+    branch = models.CharField(max_length=100, default="main")
+    commit_id = models.CharField(max_length=40, blank=True)
+    commit_message = models.CharField(max_length=255, blank=True)
+    run_url = models.URLField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="running")
+    duration_seconds = models.PositiveIntegerField(default=0)
+    # {"push": {"status": "success", "at": "<iso time>"}, "build": {...}, "tests": {...}, "deploy": {...}}
+    stages = models.JSONField(default=dict, blank=True)
+    issue = models.ForeignKey(Issue, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="pipeline_runs")
+    issue_note = models.CharField(max_length=255, blank=True)
+    issue_status_after = models.CharField(max_length=50, blank=True)
+    triggered_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-triggered_at", "-id"]
+
+    def __str__(self):
+        return f"#{self.run_number} {self.workflow_name} ({self.status})"
+
+
+class PipelineTest(models.Model):
+    run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE, related_name="tests")
+    name = models.CharField(max_length=200)
+    passed = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.name} - {'passed' if self.passed else 'failed'}"

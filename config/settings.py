@@ -105,3 +105,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
 }
+
+
+#CICD Pipeline
+CICD_WEBHOOK_TOKEN = config("CICD_WEBHOOK_TOKEN", default="Random_secret_key")

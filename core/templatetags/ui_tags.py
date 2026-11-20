@@ -51,6 +51,13 @@ ICONS = {
     "alert-circle": '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
     "git-commit": '<circle cx="12" cy="12" r="4"/><line x1="1.05" y1="12" x2="7" y2="12"/><line x1="17.01" y1="12" x2="22.96" y2="12"/>',
     "file-text": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+
+    "infinity": '<path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8"/>',
+    "rocket": '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+    "play": '<polygon points="5 3 19 12 5 21 5 3"/>',
+    "link": '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    "flask": '<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>',
+    "arrow-right": '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
 }
 
 
@@ -112,10 +119,11 @@ _ISSUES = ("issues", "Issues", "bug", "issue_list")
 _REPORTS = ("reports", "Reports", "chart", "reports")
 _ANALYTICS = ("analytics", "Analytics", "chart", "analytics")
 _GITHUB = ("github", "GitHub", "github", "github")
+_CICD = ("cicd", "CI/CD", "infinity", "cicd")
 NAV = {
-    "admin": [_DASH, _PROJECTS, _ISSUES, _ANALYTICS, ("users", "Users", "users", "user_list"), _REPORTS, _GITHUB,
+    "admin": [_DASH, _PROJECTS, _ISSUES, _ANALYTICS, ("users", "Users", "users", "user_list"), _REPORTS, _GITHUB, _CICD,
               ("settings", "Settings", "settings", "settings"), ("database", "Database", "database", "database")],
-    "project_manager": [_DASH, _PROJECTS, _ISSUES, _ANALYTICS, ("sprints", "Sprints", "layers", "sprint_list"), _REPORTS, _GITHUB],
+    "project_manager": [_DASH, _PROJECTS, _ISSUES, _ANALYTICS, ("sprints", "Sprints", "layers", "sprint_list"), _REPORTS, _GITHUB, _CICD],
     "developer": [_DASH, ("my_issues", "My Issues", "bug", "my_issues"), _PROJECTS,
                   ("comments", "Comments", "message", "comment_list")],
     "tester": [_DASH, ("reported", "Report Issues", "bug", "reported_issues"),

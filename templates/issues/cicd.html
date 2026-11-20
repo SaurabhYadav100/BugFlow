@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load ui_tags %}
+{% block title %}CI/CD{% endblock %}
+
+{% block head %}
+<style>
+  .cd-card { background:#fff; border:1px solid #e5e9f2; border-radius:14px; padding:20px; height:100%; }
+  .cd-card h5 { display:flex; align-items:center; gap:10px; font-weight:700; margin-bottom:16px; color:#1e293b; }
+  .cd-card h5 svg { color:#2563eb; }
+  .cd-banner { border-radius:14px; padding:18px 22px; display:flex; align-items:center; gap:16px; border:1px solid; }
+  .cd-banner h4 { margin:0; font-weight:700; }
+  .cd-banner .when { margin-left:auto; font-size:.9rem; white-space:nowrap; }
+  .cd-success { background:#e3f7ea; border-color:#bfe8cd; color:#14532d; }
+  .cd-success > svg { color:#22a95b; }
+  .cd-failed  { background:#fde8ea; border-color:#f7c7cd; color:#7f1d1d; }
+  .cd-failed > svg { color:#dc2626; }
+  .cd-running { background:#e8f0fe; border-color:#c9dbfb; color:#1e3a8a; }
+  .cd-running > svg { color:#2563eb; }
+  .cd-pipe { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-around; gap:12px; }
+  .cd-step { text-align:center; min-width:130px; }
+  .cd-step .circle { position:relative; width:84px; height:84px; border-radius:50%; display:flex;
+                     align-items:center; justify-content:center; margin:0 auto 8px; }
+  .cd-step .lbl { font-weight:600; }
+  .cd-step small { color:#64748b; display:block; min-height:1.2em; }
+  .step-push .circle  { background:#e3eefe; color:#111827; }
+  .step-build .circle, .step-tests .circle { background:#e3eefe; color:#2563eb; }
+  .step-deploy .circle { background:#e0f5e8; color:#16a34a; }
+  .state-failure .circle { background:#fde8ea; color:#dc2626; }
+  .state-pending .circle { background:#f1f5f9; color:#94a3b8; }
+  .cd-step .ov { position:absolute; right:-2px; bottom:2px; width:26px; height:26px; border-radius:50%;
+                 border:2px solid #fff; color:#fff; display:flex; align-items:center; justify-content:center; }
+  .ov-success { background:#22a95b; } .ov-failure { background:#dc2626; }
+  .ov-running { background:#f59e0b; } .ov-pending { display:none; }
+  .cd-arrow { color:#475569; align-self:center; margin-top:-26px; }
+  .cd-dl { display:grid; grid-template-columns:130px 1fr; row-gap:10px; align-items:center; margin:0; }
+  .cd-dl dt { font-weight:400; color:#1f2937; }
+  .cd-dl dd { margin:0; }
+  .chip { background:#e3eefe; color:#1d4ed8; border-radius:8px; padding:2px 10px; font-weight:500; }
+  .ring { width:200px; height:200px; border-radius:50%; display:grid; place-items:center; flex:none;
+          background:conic-gradient(var(--c) calc(var(--pct) * 1%), #e5e7eb 0); }
+  .ring > div { width:160px; height:160px; border-radius:50%; background:#fff; display:flex;
+                flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .ring b { font-size:2rem; line-height:1.1; }
+  .t-row { display:flex; align-items:center; gap:10px; padding:5px 0; }
+  .t-pass { color:#16a34a; } .t-fail { color:#dc2626; }
+  .t-note { border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:10px; margin-top:16px; }
+  .t-note.ok { background:#e3f7ea; color:#14532d; } .t-note.bad { background:#fde8ea; color:#7f1d1d; }
+  .t-note.ok svg { color:#22a95b; } .t-note.bad svg { color:#dc2626; }
+  .rel-note { background:#e8f0fe; border:1px solid #c9dbfb; border-radius:10px; padding:14px 18px;
+              display:flex; align-items:center; gap:10px; flex:1 1 280px; }
+  .rel-note svg { color:#22a95b; flex:none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <span style="color:#2563eb">{% icon "infinity" 44 %}</span>
+  <div>
+    <h3 class="mb-0 fw-bold">CI/CD Integration</h3>
+    <div class="text-muted">Automated Testing &amp; Deployment Pipeline</div>
+  </div>
+</div>
+
+{% if not run %}
+  <div class="alert alert-info">
+    No pipeline runs have been reported yet. Once your GitHub Actions workflow sends its results to
+    BugFlow, the latest run will appear here.
+  </div>
+{% else %}
+
+  {% if runs %}
+  <div class="d-flex justify-content-end mb-3">
+    <select class="form-select w-auto" aria-label="Select pipeline run" onchange="window.location = this.value">
+      {% for r in runs %}
+        <option value="{% url 'cicd_run' r.pk %}" {% if r.pk == run.pk %}selected{% endif %}>
+          Run #{{ r.run_number }} &middot; {{ r.get_status_display }} &middot; {{ r.triggered_at|date:"M d, h:i A" }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  {% endif %}
+
+  <!-- Status banner -->
+  <div class="cd-banner cd-{{ run.status }} mb-3">
+    {% if run.status == "success" %}{% icon "check-circle" 46 %}
+    {% elif run.status == "failed" %}{% icon "x-circle" 46 %}
+    {% else %}{% icon "refresh" 46 %}{% endif %}
+    <div>
+      {% if run.status == "success" %}
+        <h4>GitHub Actions Workflow Completed Successfully!</h4>
+        <div>Your latest code changes have been tested and deployed.</div>
+      {% elif run.status == "failed" %}
+        <h4>GitHub Actions Workflow Failed</h4>
+        <div>One or more pipeline steps failed. Check the details below.</div>
+      {% else %}
+        <h4>GitHub Actions Workflow Running</h4>
+        <div>Your latest code changes are being tested and deployed.</div>
+      {% endif %}
+    </div>
+    <div class="when">Triggered: {{ run.triggered_at|date:"M d, Y" }} &bull; {{ run.triggered_at|time:"h:i A" }}</div>
+  </div>
+
+  <!-- Pipeline steps -->
+  <div class="cd-card mb-3">
+    <div class="cd-pipe">
+      {% for s in steps %}
+        <div class="cd-step step-{{ s.key }} state-{{ s.state }}">
+          <div class="circle">
+            {% icon s.icon 40 %}
+            <span class="ov ov-{{ s.state }}">
+              {% if s.state == "success" %}{% icon "check" 14 %}
+              {% elif s.state == "failure" %}{% icon "x" 14 %}
+              {% elif s.state == "running" %}{% icon "refresh" 14 %}{% endif %}
+            </span>
+          </div>
+          <div class="lbl">{{ s.label }}</div>
+          <small>{% if s.at %}{{ s.at|time:"g:i A" }}{% endif %}</small>
+        </div>
+        {% if not forloop.last %}<span class="cd-arrow d-none d-md-block">{% icon "arrow-right" 30 %}</span>{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <!-- Workflow details -->
+    <div class="col-12 col-lg-6">
+      <div class="cd-card">
+        <h5>{% icon "play" 22 %} Workflow Details</h5>
+        <dl class="cd-dl">
+          <dt>Workflow Name</dt><dd>: {{ run.workflow_name }}</dd>
+          <dt>Run ID</dt>
+          <dd>: {% if run.run_url %}<a href="{{ run.run_url }}" target="_blank" rel="noopener" class="fw-semibold text-decoration-none">#{{ run.run_number }}</a>
+                {% else %}<b>#{{ run.run_number }}</b>{% endif %}</dd>
+          <dt>Branch</dt><dd>: <span class="chip">{{ run.branch }}</span></dd>
+          <dt>Commit</dt>
+          <dd>: {% if run.commit_id %}<span class="chip">{{ run.commit_id|slice:":7" }}</span>{% endif %}
+                {{ run.commit_message|default:"-" }}</dd>
+          <dt>Duration</dt><dd>: {{ duration }}</dd>
+          <dt>Status</dt>
+          <dd>: {% if run.status == "success" %}
+                  <span class="badge rounded-pill bg-success-subtle text-success-emphasis px-3 py-2 d-inline-flex align-items-center gap-2">{% icon "check-circle" 16 %} Success</span>
+                {% elif run.status == "failed" %}
+                  <span class="badge rounded-pill bg-danger-subtle text-danger-emphasis px-3 py-2 d-inline-flex align-items-center gap-2">{% icon "x-circle" 16 %} Failed</span>
+                {% else %}
+                  <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 d-inline-flex align-items-center gap-2">{% icon "refresh" 16 %} Running</span>
+                {% endif %}</dd>
+        </dl>
+        {% if run.run_url %}
+          <a href="{{ run.run_url }}" target="_blank" rel="noopener"
+             class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 mt-3">
+            {% icon "github" 20 %} View on GitHub {% icon "external-link" 15 %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Test results -->
+    <div class="col-12 col-lg-6">
+      <div class="cd-card">
+        <h5>{% icon "flask" 22 %} Test Results</h5>
+        {% if total_tests %}
+          <div class="d-flex flex-wrap align-items-center gap-4">
+            <div class="ring" style="--pct:{{ pct }};--c:{{ ring }}">
+              <div><b>{{ pct }}%</b><span>Tests Passed</span></div>
+            </div>
+            <div class="flex-grow-1">
+              {% for t in tests %}
+                <div class="t-row">
+                  {% if t.passed %}<span class="t-pass">{% icon "check-circle" 20 %}</span>{% else %}<span class="t-fail">{% icon "x-circle" 20 %}</span>{% endif %}
+                  <span>{{ t.name }}</span>
+                  <span class="{% if t.passed %}t-pass{% else %}t-fail{% endif %}">&ndash; {% if t.passed %}Passed{% else %}Failed{% endif %}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% if failed_tests %}
+            <div class="t-note bad">{% icon "x-circle" 22 %} {{ failed_tests }} of {{ total_tests }} test{{ total_tests|pluralize }} failed.</div>
+          {% else %}
+            <div class="t-note ok">{% icon "check-circle" 22 %} All tests passed successfully!</div>
+          {% endif %}
+        {% else %}
+          <p class="text-muted mb-0">No test results were reported for this run.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Related issue update -->
+  <div class="cd-card">
+    <h5>{% icon "link" 22 %} Related Issue Update</h5>
+    {% if issue_info %}
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 pe-3">
+          <span style="color:#2563eb">{% icon "bug" 34 %}</span>
+          <div>
+            <div class="fw-bold fs-5" style="color:#2563eb">{{ issue_info.display_id }}</div>
+            <div class="text-muted">{{ issue_info.obj.title }}</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <div>
+            <div>Status Updated:
+              <span class="badge rounded-pill px-3 py-2 {{ issue_info.status_key|status_badge }}">{{ issue_info.status_label }}</span>
+            </div>
+            <small class="text-muted">via CI/CD Workflow</small>
+          </div>
+          {% icon "arrow-right" 22 %}
+        </div>
+        {% if run.issue_note %}
+          <div class="rel-note">{% icon "check-circle" 24 %} <span>{{ run.issue_note }}</span></div>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">No issue is linked to this run. Put <code>#&lt;issue id&gt;</code> in the commit message to link one.</p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,117 @@
+name: BugFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    outputs:
+      start: ${{ steps.clock.outputs.start }}
+      build: ${{ steps.install.outcome }}
+      tests: ${{ steps.tests.outcome }}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: bugflow_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      # Use the variable names your settings.py reads from .env
+      DB_NAME: bugflow_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      SECRET_KEY: ci-only-secret-key
+    steps:
+      - id: clock
+        run: echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: install
+        run: pip install -r requirements.txt
+      - id: tests
+        run: python manage.py test -v 2 2>&1 | tee test.log; exit "${PIPESTATUS[0]}"
+      - name: Collect test results
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, re
+          tests, name = [], None
+          for line in open("test.log", errors="ignore"):
+              line = line.rstrip()
+              m = re.match(r"^(test\S*) \(([\w.]+)\)", line)
+              if m:
+                  name = m.group(1)
+              r = re.search(r"\.\.\. (ok|FAIL|ERROR)$", line)
+              if r and name:
+                  tests.append({"name": name, "passed": r.group(1) == "ok"})
+                  name = None
+          json.dump(tests, open("tests.json", "w"))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-json
+          path: tests.json
+
+  deploy:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: echo "Replace this step with your real deployment (SSH, Docker, Render, etc.)"
+
+  notify:
+    needs: [build-test, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: tests-json
+      - name: Report to BugFlow
+        env:
+          BUGFLOW_URL: ${{ secrets.BUGFLOW_URL }}
+          BUGFLOW_TOKEN: ${{ secrets.BUGFLOW_TOKEN }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          START: ${{ needs.build-test.outputs.start }}
+          BUILD: ${{ needs.build-test.outputs.build }}
+          TESTS: ${{ needs.build-test.outputs.tests }}
+          DEPLOY: ${{ needs.deploy.result }}
+        run: |
+          [ -f tests.json ] || echo "[]" > tests.json
+          STATUS=failed
+          if [ "$TESTS" = "success" ] && [ "$DEPLOY" = "success" ]; then STATUS=success; fi
+          DURATION=$(( $(date +%s) - ${START:-$(date +%s)} ))
+          jq -n \
+            --arg run_id "${{ github.run_id }}" \
+            --argjson run_number "${{ github.run_number }}" \
+            --arg workflow "${{ github.workflow }}" \
+            --arg branch "${{ github.ref_name }}" \
+            --arg commit_id "${{ github.sha }}" \
+            --arg commit_message "${COMMIT_MSG%%$'\n'*}" \
+            --arg run_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --arg status "$STATUS" \
+            --arg build "$BUILD" --arg tests "$TESTS" --arg deploy "$DEPLOY" \
+            --argjson duration_seconds "$DURATION" \
+            --slurpfile test_list tests.json \
+            '{run_id:$run_id, run_number:$run_number, workflow:$workflow, branch:$branch,
+              commit_id:$commit_id, commit_message:$commit_message, run_url:$run_url,
+              status:$status, duration_seconds:$duration_seconds,
+              stages:{push:"success", build:$build, tests:$tests, deploy:$deploy},
+              tests:$test_list[0]}' > payload.json
+          curl -sS --fail -X POST "$BUGFLOW_URL/api/cicd/webhook/" \
+            -H "Content-Type: application/json" \
+            -H "X-BugFlow-Token: $BUGFLOW_TOKEN" \
+            --data @payload.json

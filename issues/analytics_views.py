@@ -78,7 +78,7 @@ def analytics_view(request):
     # ---- Filters (project + date range) -----------------------------------
     project_id = request.GET.get("project", "")
     try:
-        days = int(request.GET.get("days", 30))
+        days = int(request.GET.get("days", 365))
     except ValueError:
         days = 30
     since = timezone.now() - timedelta(days=days)

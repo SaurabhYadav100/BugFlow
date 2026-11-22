@@ -7,8 +7,8 @@
   .cd-card { background:#fff; border:1px solid #e5e9f2; border-radius:14px; padding:20px; height:100%; }
   .cd-card h5 { display:flex; align-items:center; gap:10px; font-weight:700; margin-bottom:16px; color:#1e293b; }
   .cd-card h5 svg { color:#2563eb; }
-  .cd-banner { border-radius:14px; padding:18px 22px; display:flex; align-items:center; gap:16px; border:1px solid; }
-  .cd-banner h4 { margin:0; font-weight:700; }
+  .cd-banner { border-radius:14px; padding:5px; display:flex; align-items:center; gap:16px; border:1px solid; }
+  .cd-banner h4 { margin:0; font-weight:500; }
   .cd-banner .when { margin-left:auto; font-size:.9rem; white-space:nowrap; }
   .cd-success { background:#e3f7ea; border-color:#bfe8cd; color:#14532d; }
   .cd-success > svg { color:#22a95b; }
@@ -18,7 +18,7 @@
   .cd-running > svg { color:#2563eb; }
   .cd-pipe { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-around; gap:12px; }
   .cd-step { text-align:center; min-width:130px; }
-  .cd-step .circle { position:relative; width:84px; height:84px; border-radius:50%; display:flex;
+  .cd-step .circle { position:relative; width:70px; height:70px; border-radius:50%; display:flex;
                      align-items:center; justify-content:center; margin:0 auto 8px; }
   .cd-step .lbl { font-weight:600; }
   .cd-step small { color:#64748b; display:block; min-height:1.2em; }
@@ -27,7 +27,7 @@
   .step-deploy .circle { background:#e0f5e8; color:#16a34a; }
   .state-failure .circle { background:#fde8ea; color:#dc2626; }
   .state-pending .circle { background:#f1f5f9; color:#94a3b8; }
-  .cd-step .ov { position:absolute; right:-2px; bottom:2px; width:26px; height:26px; border-radius:50%;
+  .cd-step .ov { position:absolute; right:-5px; bottom:2px; width:26px; height:26px; border-radius:50%;
                  border:2px solid #fff; color:#fff; display:flex; align-items:center; justify-content:center; }
   .ov-success { background:#22a95b; } .ov-failure { background:#dc2626; }
   .ov-running { background:#f59e0b; } .ov-pending { display:none; }
@@ -36,12 +36,12 @@
   .cd-dl dt { font-weight:400; color:#1f2937; }
   .cd-dl dd { margin:0; }
   .chip { background:#e3eefe; color:#1d4ed8; border-radius:8px; padding:2px 10px; font-weight:500; }
-  .ring { width:200px; height:200px; border-radius:50%; display:grid; place-items:center; flex:none;
-          background:conic-gradient(var(--c) calc(var(--pct) * 1%), #e5e7eb 0); }
-  .ring > div { width:160px; height:160px; border-radius:50%; background:#fff; display:flex;
+  .ring { width:200px; height:200px; border-radius:100%; display:grid; place-items:center; flex:none;
+           background-color: #16a34a; }
+  .ring > div { width:150px; height:150px; border-radius:100%; background:#fff; display:flex;
                 flex-direction:column; align-items:center; justify-content:center; text-align:center; }
   .ring b { font-size:2rem; line-height:1.1; }
-  .t-row { display:flex; align-items:center; gap:10px; padding:5px 0; }
+  .t-row { display:flex; align-items:center; gap:10px; padding:5px; }
   .t-pass { color:#16a34a; } .t-fail { color:#dc2626; }
   .t-note { border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:10px; margin-top:16px; }
   .t-note.ok { background:#e3f7ea; color:#14532d; } .t-note.bad { background:#fde8ea; color:#7f1d1d; }
@@ -53,10 +53,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-3 mb-4">
-  <span style="color:#2563eb">{% icon "infinity" 44 %}</span>
+<div class="d-flex align-items-center gap-3">
+  
   <div>
-    <h3 class="mb-0 fw-bold">CI/CD Integration</h3>
+    <h3 class="mb-0">CI/CD Integration</h3>
     <div class="text-muted">Automated Testing &amp; Deployment Pipeline</div>
   </div>
 </div>
@@ -82,9 +82,9 @@
 
   <!-- Status banner -->
   <div class="cd-banner cd-{{ run.status }} mb-3">
-    {% if run.status == "success" %}{% icon "check-circle" 46 %}
-    {% elif run.status == "failed" %}{% icon "x-circle" 46 %}
-    {% else %}{% icon "refresh" 46 %}{% endif %}
+    {% if run.status == "success" %}{% icon "check-circle" 30 %}
+    {% elif run.status == "failed" %}{% icon "x-circle" 30 %}
+    {% else %}{% icon "refresh" 30 %}{% endif %}
     <div>
       {% if run.status == "success" %}
         <h4>GitHub Actions Workflow Completed Successfully!</h4>
@@ -160,7 +160,7 @@
         <h5>{% icon "flask" 22 %} Test Results</h5>
         {% if total_tests %}
           <div class="d-flex flex-wrap align-items-center gap-4">
-            <div class="ring" style="--pct:{{ pct }};--c:{{ ring }}">
+            <div class="ring">
               <div><b>{{ pct }}%</b><span>Tests Passed</span></div>
             </div>
             <div class="flex-grow-1">

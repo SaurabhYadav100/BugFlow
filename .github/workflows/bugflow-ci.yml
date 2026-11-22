@@ -26,10 +26,10 @@ jobs:
       # Use the variable names your settings.py reads from .env
       DB_NAME: bugflow_db
       DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_PASSWORD: DB_PASSWORD
       DB_HOST: localhost
       DB_PORT: "5432"
-      SECRET_KEY: ci-only-secret-key
+      SECRET_KEY: SECRET_KEY
     steps:
       - id: clock
         run: echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"

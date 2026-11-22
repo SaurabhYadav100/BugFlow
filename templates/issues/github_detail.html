@@ -5,15 +5,15 @@
 {% block head %}
 <style>
   .gh-head-icon { color:#2563eb; }
-  .gh-id { background:#fde8ea; border-radius:14px; padding:22px 28px; text-align:center; min-width:190px; }
-  .gh-id b { display:block; font-size:1.7rem; color:#c81e1e; }
+  .gh-id { background:#fde8ea; border-radius:14px; padding:5px; text-align:center; min-width:150px; }
+  .gh-id b { display:block; font-size:1.5rem; color:#c81e1e; }
   .gh-id span { color:#c81e1e; font-weight:600; }
-  .gh-title { background:#fff; border:1px solid #e5e9f2; border-radius:14px; padding:18px 22px; flex:1; }
+  .gh-title { background:#fff; border:1px solid #e5e9f2; border-radius:14px; padding:5px; flex:1; }
   .gh-meta { display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid #e5e9f2; padding:18px 0; }
   .gh-meta > div { flex:1 1 200px; display:flex; align-items:center; gap:12px; }
   .gh-meta svg { color:#64748b; flex:none; }
   .gh-meta small { display:block; color:#64748b; }
-  .gh-card { background:#f8fbff; border:1px solid #cfe0fc; border-radius:14px; padding:20px; }
+  .gh-card { background:#f8fbff; border:1px solid #cfe0fc; border-radius:14px; padding:10px; }
   .gh-card h5 { display:flex; align-items:center; gap:10px; font-weight:700; margin:0; }
   .gh-cols { display:flex; flex-wrap:wrap; gap:20px; margin-top:18px; align-items:center; }
   .gh-cols > div { flex:1 1 200px; }
@@ -27,10 +27,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center gap-3 mb-4">
-  <span class="gh-head-icon">{% icon "code" 34 %}</span>
+<div class="d-flex align-items-center gap-3 mb-3">
+  
   <div>
-    <h3 class="mb-0 fw-bold">Issue Details</h3>
+    <h3 class="mb-0">Issue Details</h3>
     <div class="text-muted">View issue information and related GitHub updates</div>
   </div>
 </div>
@@ -58,19 +58,19 @@
     <div class="gh-id"><b>{{ display_id }}</b><span>{{ issue_type }}</span></div>
     <div class="gh-title">
       <div class="d-flex justify-content-between align-items-start gap-3">
-        <h3 class="fw-bold mb-2">{{ issue.title }}</h3>
+        <h3 class="mb-1 ms-3">{{ issue.title }}</h3>
         {% if severity %}
           <span class="badge rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 {{ severity_key|priority_badge }}">
             {% icon "alert-circle" 16 %}{{ severity }}
           </span>
         {% endif %}
       </div>
-      <div class="text-muted">{{ description|truncatechars:140 }}</div>
+      <div class="text-muted ms-3">{{ description|truncatechars:140 }}</div>
     </div>
   </div>
 
   <!-- Meta row -->
-  <div class="gh-meta mb-3">
+  <div class="gh-meta mb-3 ms-3">
     <div>{% icon "user" 24 %}<div><small>Assigned To</small><b>{{ assignee }}</b></div></div>
     <div>{% icon "calendar" 24 %}<div><small>Created On</small><b>{{ created_on|date:"M d, Y" }}</b></div></div>
     <div>{% icon "refresh" 24 %}<div><small>Status</small>
@@ -84,7 +84,7 @@
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-gh" type="button">{% icon "github" 18 %} GitHub Activity</button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-comments" type="button">{% icon "message" 18 %} Comments ({{ comments|length }})</button></li>
   </ul>
-  <div class="tab-content mb-4">
+  <div class="tab-content mb-4 ms-3">
     <div class="tab-pane fade show active" id="tab-desc">
       <p class="mb-0">{{ description|linebreaksbr|default:"No description provided." }}</p>
     </div>
@@ -116,10 +116,10 @@
       {% else %}
         <span class="badge bg-secondary-subtle text-secondary-emphasis px-3 py-2">Not linked</span>
       {% endif %}
-    </div>
+    </div><hr>
 
     {% if link %}
-    <div class="gh-cols">
+    <div class="gh-cols ms-2">
       <div>
         <div class="lbl">Repository</div>
         <a href="{{ link.repository_url }}" target="_blank" rel="noopener" class="fw-semibold text-decoration-none d-inline-flex align-items-center gap-2">
@@ -130,7 +130,7 @@
         <div class="lbl">{% icon "git-commit" 18 %} Commit ID</div>
         {% if link.commit_id %}
           <span class="gh-commit">{{ link.commit_id|slice:":7" }}
-            <button type="button" data-copy="{{ link.commit_id }}" aria-label="Copy commit ID">{% icon "copy" 16 %}</button>
+            <button type="button" data-copy="{{ link.commit_id }}" aria-label="Copy commit ID" title="Copy">{% icon "copy" 16 %}</button>
           </span>
         {% else %}-{% endif %}
       </div>

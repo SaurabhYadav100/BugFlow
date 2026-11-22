@@ -39,9 +39,9 @@
   <!-- Header + filters -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div class="d-flex align-items-center gap-3">
-      <span class="text-primary">{% icon "chart" 38 %}</span>
+      
       <div>
-        <h3 class="mb-0 fw-bold">Analytics</h3>
+        <h3 class="mb-0">Analytics</h3>
         <div class="text-muted">Project Analytics &amp; Quality Insights</div>
       </div>
     </div>
@@ -64,19 +64,19 @@
   <!-- Stat cards -->
   <div class="row g-3 mb-3">
     <div class="col-12 col-md-6 col-xl-3">
-      <div class="stat stat-total">{% icon "bug" 38 %}
+      <div class="stat stat-total">{% icon "bug" 35 %}
         <div><div class="num">{{ counts.total }}</div><div class="lbl">Total Issues</div></div></div>
     </div>
     <div class="col-12 col-md-6 col-xl-3">
-      <div class="stat stat-open">{% icon "x-circle" 38 %}
+      <div class="stat stat-open">{% icon "x-circle" 35 %}
         <div><div class="num">{{ counts.open }}</div><div class="lbl">Open Issues</div></div></div>
     </div>
     <div class="col-12 col-md-6 col-xl-3">
-      <div class="stat stat-prog">{% icon "clock" 38 %}
+      <div class="stat stat-prog">{% icon "clock" 35 %}
         <div><div class="num">{{ counts.in_progress }}</div><div class="lbl">In Progress</div></div></div>
     </div>
     <div class="col-12 col-md-6 col-xl-3">
-      <div class="stat stat-done">{% icon "check-circle" 38 %}
+      <div class="stat stat-done">{% icon "check-circle" 35 %}
         <div><div class="num">{{ counts.resolved }}</div><div class="lbl">Resolved Issues</div></div></div>
     </div>
   </div>

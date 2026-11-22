@@ -205,7 +205,7 @@ def cicd_view(request, run_id=None):
     runs = PipelineRun.objects.select_related("issue")
     run = get_object_or_404(runs, pk=run_id) if run_id else runs.first()
     if run is None:
-        return render(request, "cicd.html", {"run": None, "nav": "cicd"})
+        return render(request, "issues/cicd.html", {"run": None, "nav": "cicd"})
 
     steps = []
     for key, label, icon_name in STEPS:
@@ -245,4 +245,4 @@ def cicd_view(request, run_id=None):
         "duration": _fmt_duration(run.duration_seconds),
         "issue_info": issue_info,
     }
-    return render(request, "cicd.html", context)
+    return render(request, "issues/cicd.html", context)

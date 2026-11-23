@@ -24,6 +24,7 @@ jobs:
           --health-timeout 5s --health-retries 10
     env:
       # Use the variable names your settings.py reads from .env
+      DB_ENGINE: ENGINE
       DB_NAME: NAME
       DB_USER: USER
       DB_PASSWORD: PASSWORD

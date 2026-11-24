@@ -289,7 +289,10 @@ class ReportAndPageTests(Base):
         self.client.force_login(self.pm)
         r = self.client.post(reverse("sprint_create"), {"project": self.project.pk, "name": "S1", "goal": "g",
                                                          "start_date": "2025-05-01", "end_date": "2025-05-14"})
-        self.assertRedirects(r, reverse("sprint_list"))
+        #self.assertRedirects(r, reverse("sprint_list"))
+        sprint = Sprint.objects.get(name="S1")
+        self.assertRedirects(r, reverse("sprint_detail", args=[sprint.pk]))
+        
         bad = self.client.post(reverse("sprint_create"), {"project": self.project.pk, "name": "S2",
                                                            "start_date": "2025-05-10", "end_date": "2025-05-01"})
         self.assertContains(bad, "end date")
